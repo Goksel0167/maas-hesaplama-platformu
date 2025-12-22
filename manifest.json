@@ -1,0 +1,20 @@
+{
+  "name": "Maaşını Hesapla",
+  "short_name": "Maaş Hesapla",
+  "description": "Türkiye'nin en kapsamlı maaş hesaplama platformu",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#6366f1",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "productivity", "utilities"],
+  "lang": "tr"
+}

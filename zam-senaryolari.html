@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zam Senaryoları Hesaplama | by Göksel</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --dark: #1f2937;
+            --light: #f3f4f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .input-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .input-group input,
+        .input-group select {
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: #64748b;
+            color: white;
+        }
+
+        .scenarios {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .scenario-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .scenario-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .scenario-1 .scenario-header {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .scenario-2 .scenario-header {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .scenario-3 .scenario-header {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .scenario-header {
+            padding: 25px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .scenario-header h3 {
+            font-size: 1.5em;
+        }
+
+        .increase {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .scenario-body {
+            padding: 25px;
+        }
+
+        .scenario-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .scenario-item:last-child {
+            border-bottom: none;
+        }
+
+        .scenario-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .scenario-value {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .scenario-value.highlight {
+            font-size: 1.3em;
+            color: var(--success);
+        }
+
+        .comparison-table {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow-x: auto;
+        }
+
+        .comparison-table h2 {
+            color: var(--dark);
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .positive {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .negative {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .scenarios {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Zam Senaryoları Hesaplama</h1>
+            <p>3 Farklı Senaryoyla Yeni Maaşınızı Karşılaştırın</p>
+        </div>
+
+        <div class="input-section">
+            <h2 style="margin-bottom: 20px; color: var(--dark);">Mevcut Bilgileriniz</h2>
+            
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>Mevcut Brüt Maaşınız (₺)</label>
+                    <input type="number" id="current-brut" value="26005.50" step="0.01" onchange="calculateScenarios()">
+                </div>
+                
+                <div class="input-group">
+                    <label>Hesaplama Yılı</label>
+                    <select id="year-select" onchange="calculateScenarios()">
+                        <option value="2024">2024</option>
+                        <option value="2025" selected>2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>1. Senaryo Zam Oranı (%)</label>
+                    <input type="number" id="scenario1-rate" value="30" step="0.1" onchange="calculateScenarios()">
+                </div>
+
+                <div class="input-group">
+                    <label>2. Senaryo Zam Oranı (%)</label>
+                    <input type="number" id="scenario2-rate" value="40" step="0.1" onchange="calculateScenarios()">
+                </div>
+
+                <div class="input-group">
+                    <label>3. Senaryo Zam Oranı (%)</label>
+                    <input type="number" id="scenario3-rate" value="50" step="0.1" onchange="calculateScenarios()">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="window.location.href='index.html'">🏠 Ana Sayfa</button>
+                <button class="btn btn-primary" onclick="calculateScenarios()">🔄 Hesapla</button>
+            </div>
+        </div>
+
+        <div id="scenarios-container" class="scenarios"></div>
+
+        <div class="comparison-table">
+            <h2>📋 Detaylı Karşılaştırma Tablosu</h2>
+            <table id="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Kalem</th>
+                        <th>Mevcut</th>
+                        <th>Senaryo 1</th>
+                        <th>Senaryo 2</th>
+                        <th>Senaryo 3</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>💼 Maaşını Hesapla - by Göksel | 2025</p>
+        </div>
+    </div>
+
+    <script src="assets/js/tax-data.js"></script>
+    <script>
+        function calculateScenarios() {
+            const currentBrut = parseFloat(document.getElementById('current-brut').value);
+            const year = parseInt(document.getElementById('year-select').value);
+            const rate1 = parseFloat(document.getElementById('scenario1-rate').value) / 100;
+            const rate2 = parseFloat(document.getElementById('scenario2-rate').value) / 100;
+            const rate3 = parseFloat(document.getElementById('scenario3-rate').value) / 100;
+
+            // Mevcut durumu hesapla
+            const current = calculateSalary(currentBrut, year);
+
+            // 3 senaryoyu hesapla
+            const scenario1 = calculateSalary(currentBrut * (1 + rate1), year);
+            const scenario2 = calculateSalary(currentBrut * (1 + rate2), year);
+            const scenario3 = calculateSalary(currentBrut * (1 + rate3), year);
+
+            // Kartları güncelle
+            updateScenarioCards(current, scenario1, scenario2, scenario3, rate1, rate2, rate3);
+
+            // Tabloyu güncelle
+            updateComparisonTable(current, scenario1, scenario2, scenario3);
+        }
+
+        function calculateSalary(brut, year) {
+            const yearData = getYearData(year);
+            
+            const sgk = brut * 0.14;
+            const unemployment = brut * 0.01;
+            const base = brut - sgk - unemployment;
+
+            // Vergi hesaplama
+            let tax = 0;
+            const brackets = yearData.taxBrackets;
+            
+            try {
+                for (let i = 0; i < brackets.length; i++) {
+                    const bracket = brackets[i];
+                    if (base > bracket.min) {
+                        const maxValue = bracket.max === Infinity ? 999999999 : bracket.max;
+                        const taxableInBracket = Math.min(base, maxValue) - bracket.min;
+                        if (taxableInBracket > 0) {
+                            tax += taxableInBracket * bracket.rate;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Vergi hesaplama hatası:', error);
+                tax = 0;
+            }
+
+            const stamp = brut * 0.00759;
+            const net = base - tax - stamp;
+
+            return {
+                brut,
+                sgk,
+                unemployment,
+                base,
+                tax,
+                stamp,
+                net,
+                annual: net * 12
+            };
+        }
+
+        function updateScenarioCards(current, s1, s2, s3, r1, r2, r3) {
+            const container = document.getElementById('scenarios-container');
+            
+            const scenarios = [
+                { data: s1, rate: r1 * 100, class: 'scenario-1', title: 'Senaryo 1', subtitle: 'İyimser' },
+                { data: s2, rate: r2 * 100, class: 'scenario-2', title: 'Senaryo 2', subtitle: 'Orta' },
+                { data: s3, rate: r3 * 100, class: 'scenario-3', title: 'Senaryo 3', subtitle: 'İyi' }
+            ];
+
+            let html = '';
+            
+            scenarios.forEach((scenario) => {
+                const increase = scenario.data.net - current.net;
+                const annualIncrease = increase * 12;
+                
+                html += `
+                    <div class="scenario-card ${scenario.class}">
+                        <div class="scenario-header">
+                            <div>
+                                <h3>${scenario.title}</h3>
+                                <p style="opacity: 0.9; margin-top: 5px;">${scenario.subtitle}</p>
+                            </div>
+                            <div class="increase">+%${scenario.rate.toFixed(1)} Zam</div>
+                        </div>
+                        <div class="scenario-body">
+                            <div class="scenario-item">
+                                <span class="scenario-label">Yeni Brüt Maaş</span>
+                                <span class="scenario-value">${formatCurrency(scenario.data.brut)}</span>
+                            </div>
+                            <div class="scenario-item">
+                                <span class="scenario-label">SGK Kesintisi</span>
+                                <span class="scenario-value">${formatCurrency(scenario.data.sgk)}</span>
+                            </div>
+                            <div class="scenario-item">
+                                <span class="scenario-label">İşsizlik Kesintisi</span>
+                                <span class="scenario-value">${formatCurrency(scenario.data.unemployment)}</span>
+                            </div>
+                            <div class="scenario-item">
+                                <span class="scenario-label">Gelir Vergisi</span>
+                                <span class="scenario-value">${formatCurrency(scenario.data.tax)}</span>
+                            </div>
+                            <div class="scenario-item">
+                                <span class="scenario-label">Damga Vergisi</span>
+                                <span class="scenario-value">${formatCurrency(scenario.data.stamp)}</span>
+                            </div>
+                            <div class="scenario-item" style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #e5e7eb;">
+                                <span class="scenario-label" style="font-size: 1.1em;">Yeni Net Maaş</span>
+                                <span class="scenario-value highlight">${formatCurrency(scenario.data.net)}</span>
+                            </div>
+                            <div class="scenario-item" style="background: #f0fdf4; margin: 15px -10px -10px; padding: 15px 10px; border-radius: 10px;">
+                                <span class="scenario-label">Aylık Artış</span>
+                                <span class="scenario-value positive">+${formatCurrency(increase)}</span>
+                            </div>
+                            <div class="scenario-item" style="background: #ecfccb; margin: 10px -10px -10px; padding: 15px 10px; border-radius: 10px;">
+                                <span class="scenario-label">Yıllık Artış</span>
+                                <span class="scenario-value positive">+${formatCurrency(annualIncrease)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function updateComparisonTable(current, s1, s2, s3) {
+            const tbody = document.getElementById('table-body');
+            
+            const rows = [
+                { label: 'Brüt Maaş', values: [current.brut, s1.brut, s2.brut, s3.brut] },
+                { label: 'SGK Kesintisi (%14)', values: [current.sgk, s1.sgk, s2.sgk, s3.sgk] },
+                { label: 'İşsizlik Kesintisi (%1)', values: [current.unemployment, s1.unemployment, s2.unemployment, s3.unemployment] },
+                { label: 'Vergi Matrahı', values: [current.base, s1.base, s2.base, s3.base] },
+                { label: 'Gelir Vergisi', values: [current.tax, s1.tax, s2.tax, s3.tax] },
+                { label: 'Damga Vergisi', values: [current.stamp, s1.stamp, s2.stamp, s3.stamp] },
+                { label: 'Net Maaş (Aylık)', values: [current.net, s1.net, s2.net, s3.net] },
+                { label: 'Net Maaş (Yıllık)', values: [current.annual, s1.annual, s2.annual, s3.annual] }
+            ];
+
+            let html = '';
+            rows.forEach(row => {
+                html += '<tr>';
+                html += `<td><strong>${row.label}</strong></td>`;
+                row.values.forEach((value, index) => {
+                    const isIncrease = index > 0 && value > row.values[0];
+                    const className = isIncrease ? 'positive' : '';
+                    html += `<td class="${className}">${formatCurrency(value)}</td>`;
+                });
+                html += '</tr>';
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('tr-TR', {
+                style: 'currency',
+                currency: 'TRY',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(value);
+        }
+
+        // Sayfa yüklendiğinde hesapla
+        window.addEventListener('DOMContentLoaded', () => {
+            calculateScenarios();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vergi Dilimleri Manuel Güncelleme | Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #64748b;
+        }
+
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .year-section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .year-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .year-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-projected {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-official {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 0.9em;
+        }
+
+        .form-group input {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1em;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+
+        .brackets-section {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .brackets-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+
+        .bracket-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: #64748b;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Vergi Dilimleri Manuel Güncelleme</h1>
+            <p>2026-2030 Yılları İçin Tahmini Vergileri Güncelleyin</p>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Uyarı:</strong> Bu sayfa sadece yönetici erişimi içindir. Yaptığınız değişiklikler tüm hesaplamaları etkileyecektir.
+        </div>
+
+        <div class="info-box">
+            <strong>ℹ️ Kullanım:</strong> Her yıl için asgari ücreti, tahmini zam oranını ve vergi dilimlerini girebilirsiniz. 
+            "Kaydet" butonuna bastığınızda veriler localStorage'a kaydedilir ve 1 Ocak'ta otomatik kontrol yapılır.
+        </div>
+
+        <div id="years-container"></div>
+
+        <div class="year-section">
+            <div class="buttons">
+                <button class="btn btn-secondary" onclick="window.location.href='index.html'">🏠 Ana Sayfaya Dön</button>
+                <button class="btn btn-success" onclick="clearAllData()">🗑️ Tüm Tahmini Verileri Sıfırla</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/tax-data.js"></script>
+    <script>
+        function loadYearForms() {
+            const container = document.getElementById('years-container');
+            container.innerHTML = '';
+
+            for (let year = 2026; year <= 2030; year++) {
+                const yearData = getYearData(year);
+                const isProjected = yearData.projected;
+                const lastUpdate = yearData.lastUpdate ? new Date(yearData.lastUpdate).toLocaleString('tr-TR') : 'Hiç güncellenmedi';
+
+                const section = document.createElement('div');
+                section.className = 'year-section';
+                section.id = `year-${year}`;
+                
+                section.innerHTML = `
+                    <div class="year-header">
+                        <div class="year-title">${year} Yılı</div>
+                        <div class="status-badge ${isProjected ? 'status-projected' : 'status-official'}">
+                            ${isProjected ? '📊 Tahmini' : '✅ Resmi'}
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Brüt Asgari Ücret (₺)</label>
+                            <input type="number" id="minWage-${year}" value="${yearData.minWage}" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Tahmini Zam Oranı (%)</label>
+                            <input type="number" id="increase-${year}" value="${yearData.estimatedIncrease || 0}" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Son Güncelleme</label>
+                            <input type="text" value="${lastUpdate}" disabled style="background: #f1f5f9;">
+                        </div>
+                    </div>
+
+                    <div class="brackets-section">
+                        <div class="brackets-title">Gelir Vergisi Dilimleri</div>
+                        ${yearData.taxBrackets.map((bracket, index) => `
+                            <div class="bracket-row">
+                                <div class="form-group">
+                                    <label>Min (₺)</label>
+                                    <input type="number" id="bracket-${year}-${index}-min" value="${bracket.min}" step="1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Max (₺)</label>
+                                    <input type="number" id="bracket-${year}-${index}-max" 
+                                           value="${bracket.max === Infinity ? '9999999999' : bracket.max}" step="1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Oran (%)</label>
+                                    <input type="number" id="bracket-${year}-${index}-rate" 
+                                           value="${bracket.rate * 100}" step="1" min="0" max="100">
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="buttons">
+                        <button class="btn btn-secondary" onclick="autoCalculateBrackets(${year})">
+                            🔄 Zam Oranına Göre Otomatik Hesapla
+                        </button>
+                        <button class="btn btn-primary" onclick="saveYearData(${year})">
+                            💾 ${year} Yılını Kaydet
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(section);
+            }
+        }
+
+        function autoCalculateBrackets(year) {
+            const increaseRate = parseFloat(document.getElementById(`increase-${year}`).value) / 100;
+            const prevYear = year - 1;
+            const prevData = getYearData(prevYear);
+
+            prevData.taxBrackets.forEach((bracket, index) => {
+                const newMin = Math.round(bracket.min * (1 + increaseRate));
+                const newMax = bracket.max === Infinity ? 9999999999 : Math.round(bracket.max * (1 + increaseRate));
+                
+                document.getElementById(`bracket-${year}-${index}-min`).value = newMin;
+                document.getElementById(`bracket-${year}-${index}-max`).value = newMax;
+            });
+
+            alert(`✅ ${year} yılı vergi dilimleri %${(increaseRate * 100).toFixed(1)} zam oranıyla hesaplandı!`);
+        }
+
+        function saveYearData(year) {
+            const minWage = parseFloat(document.getElementById(`minWage-${year}`).value);
+            const estimatedIncrease = parseFloat(document.getElementById(`increase-${year}`).value);
+            
+            const taxBrackets = [];
+            const yearData = getYearData(year);
+            
+            yearData.taxBrackets.forEach((bracket, index) => {
+                const min = parseFloat(document.getElementById(`bracket-${year}-${index}-min`).value);
+                const max = parseFloat(document.getElementById(`bracket-${year}-${index}-max`).value);
+                const rate = parseFloat(document.getElementById(`bracket-${year}-${index}-rate`).value) / 100;
+                
+                taxBrackets.push({
+                    min: min,
+                    max: max >= 9999999999 ? Infinity : max,
+                    rate: rate
+                });
+            });
+
+            const newData = {
+                minWage: minWage,
+                estimatedIncrease: estimatedIncrease,
+                taxBrackets: taxBrackets,
+                agi: yearData.agi,
+                projected: true,
+                lastUpdate: new Date().toISOString()
+            };
+
+            // updateYearDataManually fonksiyonunu kullan
+            updateYearDataManually(year, newData);
+
+            alert(`✅ ${year} yılı verileri başarıyla kaydedildi!`);
+            loadYearForms(); // Formu yenile
+        }
+
+        function clearAllData() {
+            if (!confirm('⚠️ Tüm tahmini veriler silinecek ve varsayılan değerlere dönülecek. Emin misiniz?')) {
+                return;
+            }
+
+            for (let year = 2026; year <= 2030; year++) {
+                localStorage.removeItem(`taxData_${year}`);
+                localStorage.removeItem(`taxData_${year}_date`);
+            }
+
+            alert('✅ Tüm tahmini veriler silindi!');
+            window.location.reload();
+        }
+
+        // Sayfa yüklendiğinde formları oluştur
+        window.addEventListener('DOMContentLoaded', () => {
+            loadYearForms();
+        });
+    </script>
+</body>
+</html>

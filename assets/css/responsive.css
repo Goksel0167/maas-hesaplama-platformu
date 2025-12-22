@@ -1,0 +1,220 @@
+/* Responsive Design */
+
+/* Tablets (768px - 1024px) */
+@media (max-width: 1024px) {
+    .container {
+        max-width: 100%;
+        padding: 0 15px;
+    }
+
+    .logo-text {
+        font-size: 1.5em;
+    }
+
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .calc-table th,
+    .calc-table td {
+        padding: 10px;
+        font-size: 13px;
+    }
+}
+
+/* Mobile (max 768px) */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .logo {
+        padding: 15px 25px;
+        gap: 10px;
+    }
+
+    .logo-icon {
+        font-size: 2em;
+    }
+
+    .logo-text {
+        font-size: 1.2em;
+    }
+
+    .toolbar {
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    .toolbar-left,
+    .toolbar-right {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .dropdown-btn,
+    .export-btn,
+    .support-btn {
+        padding: 10px 15px;
+        font-size: 13px;
+    }
+
+    .main-card {
+        padding: 20px 15px;
+        border-radius: 15px;
+    }
+
+    .main-card h2 {
+        font-size: 1.3em;
+    }
+
+    .summary-cards {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .summary-card {
+        padding: 15px;
+    }
+
+    .summary-card-title {
+        font-size: 0.85em;
+    }
+
+    .summary-card-value {
+        font-size: 1.5em;
+    }
+
+    .calc-table-container {
+        overflow-x: scroll;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .calc-table {
+        min-width: 800px;
+    }
+
+    .calc-table th,
+    .calc-table td {
+        padding: 8px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .calc-table input {
+        padding: 6px;
+        font-size: 12px;
+        min-width: 80px;
+    }
+
+    .side-panel {
+        width: 100%;
+        right: -100%;
+    }
+
+    .side-panel.show {
+        right: 0;
+    }
+
+    .side-panel-header h3 {
+        font-size: 1.1em;
+    }
+
+    .panel-option {
+        padding: 12px;
+        font-size: 14px;
+    }
+}
+
+/* Small Mobile (max 480px) */
+@media (max-width: 480px) {
+    .logo {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px 20px;
+    }
+
+    .logo-icon {
+        font-size: 2.5em;
+    }
+
+    .logo-text {
+        font-size: 1em;
+    }
+
+    .toolbar-left,
+    .toolbar-right {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .dropdown-btn,
+    .export-btn,
+    .support-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .summary-card-value {
+        font-size: 1.3em;
+    }
+
+    .calc-table {
+        min-width: 700px;
+    }
+
+    .calc-table th,
+    .calc-table td {
+        padding: 6px;
+        font-size: 11px;
+    }
+}
+
+/* Landscape Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .logo {
+        padding: 10px 30px;
+    }
+
+    .logo-icon {
+        font-size: 1.8em;
+    }
+
+    .logo-text {
+        font-size: 1.1em;
+    }
+
+    .main-card {
+        padding: 15px;
+    }
+
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Print Styles */
+@media print {
+    body {
+        background: white;
+        padding: 0;
+    }
+
+    .toolbar,
+    .support-btn,
+    .export-btn,
+    .side-panel {
+        display: none !important;
+    }
+
+    .main-card {
+        box-shadow: none;
+        border: 1px solid #e2e8f0;
+    }
+
+    .calc-table th,
+    .calc-table td {
+        border: 1px solid #e2e8f0;
+    }
+}

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asgari Ücret Hesaplama (2017-2030) | by Göksel</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .controls {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.9em;
+        }
+
+        select, button {
+            padding: 12px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select {
+            min-width: 150px;
+            background: white;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            font-size: 0.9em;
+            color: #64748b;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .card-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .card-subtitle {
+            font-size: 0.85em;
+            color: #94a3b8;
+        }
+
+        .card.highlight {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .card.highlight .card-header,
+        .card.highlight .card-value,
+        .card.highlight .card-subtitle {
+            color: white;
+        }
+
+        .comparison-table {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow-x: auto;
+        }
+
+        .comparison-table h2 {
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        tbody tr.selected {
+            background: #ede9fe;
+        }
+
+        .year-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .increase {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Asgari Ücret Hesaplama</h1>
+            <p>2017-2030 Yılları Arası Asgari Ücret ve Maaş Kesintileri</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="year-select">Yıl Seçin</label>
+                <select id="year-select" onchange="calculateMinWage()">
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025" selected>2025</option>
+                    <option value="2026">2026</option>
+                    <option value="2027">2027</option>
+                    <option value="2028">2028</option>
+                    <option value="2029">2029</option>
+                    <option value="2030">2030</option>
+                </select>
+            </div>
+            <button onclick="showAllYears()">📊 Tüm Yılları Karşılaştır</button>
+            <button onclick="window.location.href='index.html'">🏠 Ana Sayfaya Dön</button>
+        </div>
+
+        <div class="cards" id="cards-container">
+            <!-- JavaScript ile doldurulacak -->
+        </div>
+
+        <div class="comparison-table">
+            <h2>Yıllara Göre Asgari Ücret Karşılaştırması</h2>
+            <table id="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Yıl</th>
+                        <th>Brüt Asgari Ücret</th>
+                        <th>SGK İşçi Payı (%14)</th>
+                        <th>İşsizlik Sigortası (%1)</th>
+                        <th>Gelir Vergisi</th>
+                        <th>Damga Vergisi</th>
+                        <th>Net Asgari Ücret</th>
+                        <th>Artış Oranı</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- JavaScript ile doldurulacak -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p><strong>Maaşını Hesapla</strong> by Göksel v2.0.0</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">2017-2025 verileri resmi kaynaklara göre | 2026-2030 tahmindir</p>
+        </div>
+    </div>
+
+    <script src="assets/js/tax-data.js" onerror="console.error('tax-data.js yüklenemedi!')"></script>
+    <script>
+        // Sayfa yüklendiğinde kontrol
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Sayfa yüklendi');
+            console.log('TAX_DATA:', typeof TAX_DATA);
+            console.log('getYearData:', typeof getYearData);
+            
+            // Eğer tax-data.js yüklenmediyse, fallback
+            if (typeof getYearData !== 'function') {
+                console.error('getYearData fonksiyonu bulunamadı!');
+                document.getElementById('cards-container').innerHTML = `
+                    <div style="background: #fee2e2; padding: 20px; border-radius: 10px; color: #991b1b;">
+                        <h3>❌ Veri Yükleme Hatası</h3>
+                        <p>Vergi verileri yüklenemedi. Lütfen sayfayı yenileyin.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            calculateMinWage();
+        });
+        
+        // Asgari ücret hesaplama fonksiyonu
+        function calculateMinWage() {
+            console.log('calculateMinWage çağrıldı');
+            
+            try {
+                const year = parseInt(document.getElementById('year-select').value);
+                console.log('Seçilen yıl:', year);
+                
+                const yearData = getYearData(year);
+                console.log('Year data:', yearData);
+                
+                if (!yearData) {
+                    console.error('Yıl verisi bulunamadı:', year);
+                    return;
+                }
+            
+            const brut = yearData.minWage;
+            const sgk = brut * 0.14;
+            const unemployment = brut * 0.01;
+            const base = brut - sgk - unemployment;
+            
+            // Vergi hesaplama
+            let tax = 0;
+            const brackets = yearData.taxBrackets;
+            
+            // Güvenli vergi hesaplama
+            try {
+                for (let i = 0; i < brackets.length; i++) {
+                    const bracket = brackets[i];
+                    if (base > bracket.min) {
+                        const maxValue = bracket.max === Infinity ? 999999999 : bracket.max;
+                        const taxableInBracket = Math.min(base, maxValue) - bracket.min;
+                        if (taxableInBracket > 0) {
+                            tax += taxableInBracket * bracket.rate;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Vergi hesaplama hatası:', error);
+                tax = 0;
+            }
+            
+            // Asgari ücret gelir vergisinden muaf (2022 sonrası)
+            if (year >= 2022) {
+                tax = 0;
+            }
+            
+            const stamp = brut * 0.00759;
+            const net = base - tax - stamp;
+            
+            // Kartları güncelle
+            updateCards(year, brut, sgk, unemployment, base, tax, stamp, net, yearData.projected);
+            
+            // Tabloyu güncelle
+            updateTable();
+            
+            console.log('Hesaplama tamamlandı');
+            
+            } catch (error) {
+                console.error('Hesaplama hatası:', error);
+                alert('Hesaplama sırasında bir hata oluştu: ' + error.message);
+            }
+        }
+        
+        function updateCards(year, brut, sgk, unemployment, base, tax, stamp, net, projected) {
+            const cardsContainer = document.getElementById('cards-container');
+            const projectedNote = projected ? ' <span style="font-size: 0.7em;">(Tahmini)</span>' : '';
+            
+            cardsContainer.innerHTML = `
+                <div class="card highlight">
+                    <div class="card-header">${year} Yılı Brüt Asgari Ücret${projectedNote}</div>
+                    <div class="card-value">${formatCurrency(brut)}</div>
+                    <div class="card-subtitle">Aylık brüt ücret</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">SGK İşçi Payı (%14)</div>
+                    <div class="card-value">${formatCurrency(sgk)}</div>
+                    <div class="card-subtitle">Sosyal güvenlik primi</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">İşsizlik Sigortası (%1)</div>
+                    <div class="card-value">${formatCurrency(unemployment)}</div>
+                    <div class="card-subtitle">İşsizlik sigortası kesintisi</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">Vergi Matrahı</div>
+                    <div class="card-value">${formatCurrency(base)}</div>
+                    <div class="card-subtitle">SGK ve işsizlik sonrası</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">Gelir Vergisi</div>
+                    <div class="card-value">${formatCurrency(tax)}</div>
+                    <div class="card-subtitle">${year >= 2022 ? 'Muaf' : 'Vergiye tabi'}</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">Damga Vergisi (%0.759)</div>
+                    <div class="card-value">${formatCurrency(stamp)}</div>
+                    <div class="card-subtitle">Damga vergisi kesintisi</div>
+                </div>
+                
+                <div class="card highlight">
+                    <div class="card-header">${year} Yılı Net Asgari Ücret${projectedNote}</div>
+                    <div class="card-value">${formatCurrency(net)}</div>
+                    <div class="card-subtitle">Elde edilen net ücret</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">Yıllık Net Toplam</div>
+                    <div class="card-value">${formatCurrency(net * 12)}</div>
+                    <div class="card-subtitle">12 aylık toplam</div>
+                </div>
+            `;
+        }
+        
+        function updateTable() {
+            const tbody = document.getElementById('table-body');
+            const selectedYear = parseInt(document.getElementById('year-select').value);
+            let html = '';
+            let prevNet = null;
+            
+            for (let year = 2017; year <= 2030; year++) {
+                const yearData = getYearData(year);
+                if (!yearData) continue; // Veri yoksa atla
+                
+                const brut = yearData.minWage;
+                const sgk = brut * 0.14;
+                const unemployment = brut * 0.01;
+                const base = brut - sgk - unemployment;
+                
+                let tax = 0;
+                const brackets = yearData.taxBrackets;
+                
+                // Vergi hesaplama - güvenli şekilde
+                try {
+                    for (let i = 0; i < brackets.length; i++) {
+                        const bracket = brackets[i];
+                        if (base > bracket.min) {
+                            const maxValue = bracket.max === Infinity ? 999999999 : bracket.max;
+                            const taxableInBracket = Math.min(base, maxValue) - bracket.min;
+                            if (taxableInBracket > 0) {
+                                tax += taxableInBracket * bracket.rate;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error(`${year} yılı vergi hesaplama hatası:`, error);
+                    tax = 0;
+                }
+                
+                // 2022 ve sonrası asgari ücret gelir vergisinden muaf
+                if (year >= 2022) {
+                    tax = 0;
+                }
+                
+                const stamp = brut * 0.00759;
+                const net = base - tax - stamp;
+                
+                let increaseRate = '-';
+                if (prevNet !== null && prevNet > 0) {
+                    const increase = ((net - prevNet) / prevNet * 100).toFixed(2);
+                    increaseRate = `<span class="increase">+${increase}%</span>`;
+                }
+                prevNet = net;
+                
+                const rowClass = year === selectedYear ? 'selected' : '';
+                const yearBadge = yearData.projected ? `<span class="year-badge">Tahmini</span>` : '';
+                
+                html += `
+                    <tr class="${rowClass}">
+                        <td><strong>${year}</strong> ${yearBadge}</td>
+                        <td>${formatCurrency(brut)}</td>
+                        <td>${formatCurrency(sgk)}</td>
+                        <td>${formatCurrency(unemployment)}</td>
+                        <td>${formatCurrency(tax)}</td>
+                        <td>${formatCurrency(stamp)}</td>
+                        <td><strong>${formatCurrency(net)}</strong></td>
+                        <td>${increaseRate}</td>
+                    </tr>
+                `;
+            }
+            
+            tbody.innerHTML = html;
+        }
+        
+        function formatCurrency(value) {
+            return value.toLocaleString('tr-TR', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            }) + '₺';
+        }
+        
+        function showAllYears() {
+            document.documentElement.scrollTo({
+                top: document.querySelector('.comparison-table').offsetTop - 100,
+                behavior: 'smooth'
+            });
+        }
+    </script>
+</body>
+</html>

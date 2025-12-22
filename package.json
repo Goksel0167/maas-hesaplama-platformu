@@ -1,0 +1,51 @@
+{
+  "name": "maasini-hesapla-by-goksel",
+  "version": "2.0.0",
+  "description": "Türkiye'nin en kapsamlı maaş hesaplama platformu - Brüt/Net dönüşüm, zam senaryoları ve tazminat hesaplamaları",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server --port=5500 --open=index.html",
+    "dev": "live-server --port=5500 --open=index.html --watch=.",
+    "build": "echo 'No build step required for static HTML'",
+    "test": "echo 'No tests configured'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/goksel/maasini-hesapla-by-goksel.git"
+  },
+  "keywords": [
+    "maaş",
+    "hesaplama",
+    "brüt",
+    "net",
+    "vergi",
+    "sgk",
+    "tazminat",
+    "zam",
+    "enflasyon",
+    "türkiye",
+    "salary",
+    "calculator"
+  ],
+  "author": {
+    "name": "Göksel",
+    "url": "https://github.com/goksel"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/goksel/maasini-hesapla-by-goksel#readme",
+  "bugs": {
+    "url": "https://github.com/goksel/maasini-hesapla-by-goksel/issues"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "dependencies": {
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.5.31",
+    "xlsx": "^0.18.5"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  }
+}

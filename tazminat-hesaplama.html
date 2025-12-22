@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tazminat Hesaplama - Kıdem, İhbar, Yıllık İzin</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f1f5f9;
+            --gray: #64748b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px 40px;
+            border-radius: 50px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo-icon {
+            font-size: 2.5em;
+        }
+        
+        .logo-text {
+            color: white;
+            font-size: 2em;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .nav-btn {
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            color: var(--dark);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .calc-section {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .calc-section h2 {
+            color: var(--primary);
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--gray);
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .form-group input[type="number"] {
+            font-weight: 600;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+        
+        .result-box {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            border-left: 4px solid var(--success);
+        }
+        
+        .result-box h3 {
+            color: var(--success);
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .result-box .amount {
+            font-size: 2em;
+            font-weight: 800;
+            color: var(--dark);
+        }
+        
+        .info-box {
+            background: #fef3c7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.85em;
+            color: #92400e;
+            line-height: 1.6;
+        }
+        
+        .info-box strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #78350f;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        @media (max-width: 768px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="logo-icon">💰</span>
+                <span class="logo-text">Tazminat Hesaplama</span>
+            </div>
+            <div class="nav-buttons">
+                <a href="index.html" class="nav-btn">🏠 Ana Sayfa (Maaş Hesaplama)</a>
+                <select id="currency-selector" class="nav-btn" style="padding: 12px 20px; cursor: pointer;" onchange="updateCurrency()">
+                    <option value="TRY">💵 TL</option>
+                    <option value="USD">💵 USD</option>
+                    <option value="EUR">💶 EURO</option>
+                    <option value="CHF">💰 CHF</option>
+                </select>
+                <button class="nav-btn" onclick="exportToPDF()" style="background: rgba(239, 68, 68, 0.3); border-color: rgba(239, 68, 68, 0.5);">
+                    📄 PDF İndir
+                </button>
+                <button class="nav-btn" onclick="exportToExcel()" style="background: rgba(16, 185, 129, 0.3); border-color: rgba(16, 185, 129, 0.5);">
+                    📊 Excel İndir
+                </button>
+            </div>
+        </header>
+
+        <div class="main-card">
+            <!-- Kur Bilgisi -->
+            <div id="exchange-rate-info" style="background: linear-gradient(135deg, #e0f2fe, #bfdbfe); padding: 15px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9em; color: #1e40af; text-align: center; display: none;">
+                Kurlar yükleniyor...
+            </div>
+            
+            <h1>Kıdem, İhbar Tazminatı ve Kullanılmayan Yıllık İzin Hesaplama</h1>
+
+            <div class="calculator-grid">
+                <!-- Kıdem Tazminatı -->
+                <div class="calc-section">
+                    <h2>💼 Kıdem Tazminatı</h2>
+                    
+                    <div class="form-group">
+                        <label>İşe Giriş Tarihi</label>
+                        <input type="date" id="kidem-giris" onchange="calculateKidem()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>İşten Çıkış Tarihi</label>
+                        <input type="date" id="kidem-cikis" onchange="calculateKidem()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Çalışma Süresi (Otomatik Hesaplanır)</label>
+                        <input type="text" id="kidem-sure-text" placeholder="0 yıl 0 ay 0 gün" readonly style="background: #f1f5f9; cursor: not-allowed;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Son Brüt Aylık Ücret (₺)</label>
+                        <input type="number" id="kidem-brut" placeholder="Örn: 50000" oninput="calculateKidem()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Ayrılma Nedeni</label>
+                        <select id="kidem-neden" onchange="calculateKidem()">
+                            <option value="emeklilik">Emeklilik</option>
+                            <option value="isverenFesh">İşveren Tarafından Fesih</option>
+                            <option value="askerlik">Askerlik</option>
+                            <option value="olum">Ölüm</option>
+                            <option value="hastalik">Sürekli Hastalık</option>
+                            <option value="isciIstifa">İşçi İstifası (Hak Yok)</option>
+                        </select>
+                    </div>
+                    
+                    <button class="calculate-btn" onclick="calculateKidem()">Hesapla</button>
+                    
+                    <div class="result-box" id="kidem-result" style="display: none;">
+                        <h3>Kıdem Tazminatı</h3>
+                        <div class="amount" id="kidem-amount">0₺</div>
+                        <div style="margin-top: 15px;">
+                            <div class="detail-row">
+                                <span class="detail-label">Çalışma Süresi</span>
+                                <span class="detail-value" id="kidem-sure-detail">0 yıl</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Günlük Brüt Ücret</span>
+                                <span class="detail-value" id="kidem-gunluk">0₺</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Hesaplanan Tutar</span>
+                                <span class="detail-value" id="kidem-hesaplanan">0₺</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Kıdem Tavan (2025)</span>
+                                <span class="detail-value">39.866,78₺</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>ℹ️ Kıdem Tazminatı Bilgileri:</strong>
+                        • En az 1 yıl çalışmış olmak gerekir<br>
+                        • Her çalışma yılı için 30 günlük brüt ücret<br>
+                        • 2025 yılı tavanı: 39.866,78₺<br>
+                        • İstifa durumunda hak düşer (askerlik, emeklilik hariç)<br>
+                        • Kesirli yıllar da hesaba katılır
+                    </div>
+                </div>
+
+                <!-- İhbar Tazminatı -->
+                <div class="calc-section">
+                    <h2>📢 İhbar Tazminatı</h2>
+                    
+                    <div class="form-group">
+                        <label>Brüt Aylık Ücret (₺)</label>
+                        <input type="number" id="ihbar-brut" placeholder="Örn: 50000" oninput="calculateIhbar()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Toplam Çalışma Süresi</label>
+                        <select id="ihbar-sure" onchange="calculateIhbar()">
+                            <option value="0">0-6 Ay (İhbar Süresi: 2 Hafta)</option>
+                            <option value="6">6 Ay - 1.5 Yıl (İhbar Süresi: 4 Hafta)</option>
+                            <option value="1.5">1.5 Yıl - 3 Yıl (İhbar Süresi: 6 Hafta)</option>
+                            <option value="3">3 Yıl + (İhbar Süresi: 8 Hafta)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>İhbar Yapıldı mı?</label>
+                        <select id="ihbar-yapildi" onchange="calculateIhbar()">
+                            <option value="hayir">Hayır (Tazminat Ödenir)</option>
+                            <option value="evet">Evet (Tazminat Yok)</option>
+                        </select>
+                    </div>
+                    
+                    <button class="calculate-btn" onclick="calculateIhbar()">Hesapla</button>
+                    
+                    <div class="result-box" id="ihbar-result" style="display: none;">
+                        <h3>İhbar Tazminatı</h3>
+                        <div class="amount" id="ihbar-amount">0₺</div>
+                        <div style="margin-top: 15px;">
+                            <div class="detail-row">
+                                <span class="detail-label">İhbar Süresi</span>
+                                <span class="detail-value" id="ihbar-sure-text">0 hafta</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Günlük Brüt</span>
+                                <span class="detail-value" id="ihbar-gunluk">0₺</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>ℹ️ İhbar Tazminatı Bilgileri:</strong>
+                        • İşveren ihbar süresini tanımadan fesih ederse ödenir<br>
+                        • İhbar süresi çalışma süresine göre değişir<br>
+                        • İhbar verilirse tazminat ödenmez<br>
+                        • Belirtilen süre kadar maaş ödenir
+                    </div>
+                </div>
+
+                <!-- Kullanılmayan Yıllık İzin -->
+                <div class="calc-section">
+                    <h2>🏖️ Kullanılmayan Yıllık İzin</h2>
+                    
+                    <div class="form-group">
+                        <label>Brüt Aylık Ücret (₺)</label>
+                        <input type="number" id="izin-aylik-brut" placeholder="Örn: 50000" oninput="calculateIzin()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Günlük Brüt Ücret (Otomatik Hesaplanır)</label>
+                        <input type="number" id="izin-gunluk" placeholder="0" readonly style="background: #f1f5f9; cursor: not-allowed;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Kullanılmayan İzin Günü</label>
+                        <input type="number" id="izin-gun" placeholder="Örn: 14" oninput="calculateIzin()">
+                    </div>
+                    
+                    <button class="calculate-btn" onclick="calculateIzin()">Hesapla</button>
+                    
+                    <div class="result-box" id="izin-result" style="display: none;">
+                        <h3>Kullanılmayan İzin Ücreti</h3>
+                        <div class="amount" id="izin-amount">0₺</div>
+                        <div style="margin-top: 15px;">
+                            <div class="detail-row">
+                                <span class="detail-label">İzin Günü</span>
+                                <span class="detail-value" id="izin-gun-text">0 gün</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Günlük Brüt</span>
+                                <span class="detail-value" id="izin-gunluk-text">0₺</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>ℹ️ Yıllık İzin Bilgileri:</strong>
+                        • İş sözleşmesi sona erdiğinde kullanılmayan izinler ödenir<br>
+                        • 1-5 yıl: 14 gün izin hakkı<br>
+                        • 5-15 yıl: 20 gün izin hakkı<br>
+                        • 15+ yıl: 26 gün izin hakkı
+                    </div>
+                </div>
+
+                <!-- Çıkış Paketi -->
+                <div class="calc-section">
+                    <h2>🎁 Çıkış Paketi (Ekstra Tazminat)</h2>
+                    
+                    <div class="form-group">
+                        <label>Son Brüt Aylık Ücret (₺)</label>
+                        <input type="number" id="paket-brut" placeholder="Örn: 50000" oninput="calculatePaket()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Paket Sayısı (Her paket = 1 aylık net maaş)</label>
+                        <input type="number" id="paket-sayi" placeholder="Örn: 3" min="0" step="1" oninput="calculatePaket()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Çalışan Tipi</label>
+                        <select id="paket-tip" onchange="calculatePaket()">
+                            <option value="normal">Normal Çalışan</option>
+                            <option value="retired">Emekli (%15 indirim)</option>
+                            <option value="disabled-1">Engelli 1. Derece (%20 indirim)</option>
+                            <option value="disabled-2">Engelli 2. Derece (%15 indirim)</option>
+                            <option value="disabled-3">Engelli 3. Derece (%10 indirim)</option>
+                        </select>
+                    </div>
+                    
+                    <button class="calculate-btn" onclick="calculatePaket()">Hesapla</button>
+                    
+                    <div class="result-box" id="paket-result" style="display: none;">
+                        <h3>Toplam Çıkış Paketi</h3>
+                        <div class="amount" id="paket-amount">0₺</div>
+                        <div style="margin-top: 15px;">
+                            <div class="detail-row">
+                                <span class="detail-label">Brüt Maaş</span>
+                                <span class="detail-value" id="paket-brut-text">0₺</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Net Maaş (1 Paket)</span>
+                                <span class="detail-value" id="paket-net-text">0₺</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Paket Sayısı</span>
+                                <span class="detail-value" id="paket-sayi-text">0 paket</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>ℹ️ Çıkış Paketi Bilgileri:</strong>
+                        • İşveren feshinde dava açmamak için verilen ekstra ödemedir<br>
+                        • Her paket = 1 aylık net maaşa eşittir<br>
+                        • Kıdem, ihbar ve yıllık izin haklarının üzerine eklenir<br>
+                        • Net olarak ödenir (vergiler düşülmüş hali)<br>
+                        • Uzlaşma protokolünde belirtilir
+                    </div>
+                </div>
+
+                <!-- Toplam Çıkış Paketi -->
+                <div class="calc-section" style="grid-column: 1 / -1;">
+                    <h2>📊 Toplam Çıkış Paketi</h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">
+                        <div class="result-box">
+                            <h3>Kıdem Tazminatı</h3>
+                            <div class="amount" id="total-kidem" style="font-size: 1.5em;">0₺</div>
+                        </div>
+                        <div class="result-box">
+                            <h3>İhbar Tazminatı</h3>
+                            <div class="amount" id="total-ihbar" style="font-size: 1.5em;">0₺</div>
+                        </div>
+                        <div class="result-box">
+                            <h3>Yıllık İzin</h3>
+                            <div class="amount" id="total-izin" style="font-size: 1.5em;">0₺</div>
+                        </div>
+                        <div class="result-box" style="background: linear-gradient(135deg, #fef3c7, #fde68a); border-color: #f59e0b;">
+                            <h3 style="color: #f59e0b;">Çıkış Paketi</h3>
+                            <div class="amount" id="total-paket" style="font-size: 1.5em; color: #f59e0b;">0₺</div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-box" style="background: linear-gradient(135deg, #f0fdf4, #bbf7d0); border-color: #16a34a; margin-top: 20px;">
+                        <h3 style="color: #16a34a;">GENEL TOPLAM (Tüm Haklar)</h3>
+                        <div class="amount" id="total-all" style="font-size: 2em; color: #16a34a;">0₺</div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Döviz kurları (TCMB'den çekilecek)
+        let exchangeRates = {
+            TRY: 1,
+            USD: 34.50,
+            EUR: 36.20,
+            CHF: 39.10
+        };
+        
+        let currentCurrency = 'TRY';
+        let kurGuncellendi = false;
+        
+        // TCMB'den kurları çek
+        async function fetchExchangeRates() {
+            try {
+                // TCMB XML URL'i - CORS proxy üzerinden
+                const tcmbUrl = 'https://www.tcmb.gov.tr/kurlar/today.xml';
+                const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                
+                const response = await fetch(proxyUrl + encodeURIComponent(tcmbUrl));
+                const xmlText = await response.text();
+                
+                // XML parse
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+                
+                // Hata kontrolü
+                if (xmlDoc.getElementsByTagName('parsererror').length > 0) {
+                    throw new Error('XML parse hatası');
+                }
+                
+                // Döviz kurlarını çek (Satış kuru - ForexSelling)
+                const currencies = xmlDoc.getElementsByTagName('Currency');
+                
+                if (currencies.length === 0) {
+                    throw new Error('Kur bilgisi bulunamadı');
+                }
+                
+                for (let currency of currencies) {
+                    const code = currency.getAttribute('CurrencyCode');
+                    const forexSelling = currency.getElementsByTagName('ForexSelling')[0];
+                    
+                    if (forexSelling && forexSelling.textContent) {
+                        const rate = parseFloat(forexSelling.textContent);
+                        
+                        if (!isNaN(rate) && rate > 0) {
+                            if (code === 'USD') {
+                                exchangeRates.USD = rate;
+                            } else if (code === 'EUR') {
+                                exchangeRates.EUR = rate;
+                            } else if (code === 'CHF') {
+                                exchangeRates.CHF = rate;
+                            }
+                        }
+                    }
+                }
+                
+                kurGuncellendi = true;
+                console.log('✅ TCMB Kurları Güncellendi:', exchangeRates);
+                
+                // Kur bilgisini göster
+                showExchangeRateInfo();
+                
+            } catch (error) {
+                console.error('⚠️ TCMB kurları alınamadı, varsayılan kurlar kullanılıyor:', error);
+                kurGuncellendi = false;
+                showExchangeRateInfo();
+            }
+        }
+        
+        // Kur bilgisini göster
+        function showExchangeRateInfo() {
+            const infoDiv = document.getElementById('exchange-rate-info');
+            if (infoDiv) {
+                const today = new Date().toLocaleDateString('tr-TR');
+                const kaynak = kurGuncellendi ? '✅ TCMB Güncel' : '⚠️ Varsayılan';
+                infoDiv.innerHTML = `
+                    <strong>📊 ${kaynak} Satış Kurları (${today}):</strong><br>
+                    💵 USD: ${exchangeRates.USD.toFixed(4)} TL |
+                    💶 EUR: ${exchangeRates.EUR.toFixed(4)} TL |
+                    💰 CHF: ${exchangeRates.CHF.toFixed(4)} TL
+                `;
+                infoDiv.style.display = 'block';
+            }
+        }
+        
+        // Sayfa yüklendiğinde kurları çek
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchExchangeRates();
+        });
+        
+        // Kıdem tazminatı hesaplama
+        function calculateKidem() {
+            const girisTarihi = document.getElementById('kidem-giris').value;
+            const cikisTarihi = document.getElementById('kidem-cikis').value;
+            const brutMaas = parseFloat(document.getElementById('kidem-brut').value) || 0;
+            const neden = document.getElementById('kidem-neden').value;
+            
+            if (!girisTarihi || !cikisTarihi || brutMaas === 0) return;
+            
+            // Tarihleri hesapla
+            const giris = new Date(girisTarihi);
+            const cikis = new Date(cikisTarihi);
+            
+            if (cikis <= giris) {
+                alert('Çıkış tarihi, giriş tarihinden sonra olmalıdır!');
+                return;
+            }
+            
+            // Çalışma süresini hesapla (yıl, ay, gün)
+            let yil = cikis.getFullYear() - giris.getFullYear();
+            let ay = cikis.getMonth() - giris.getMonth();
+            let gun = cikis.getDate() - giris.getDate();
+            
+            if (gun < 0) {
+                ay--;
+                const prevMonth = new Date(cikis.getFullYear(), cikis.getMonth(), 0);
+                gun += prevMonth.getDate();
+            }
+            
+            if (ay < 0) {
+                yil--;
+                ay += 12;
+            }
+            
+            // Toplam çalışma süresi (ondalık yıl)
+            const toplamGun = Math.floor((cikis - giris) / (1000 * 60 * 60 * 24));
+            const calismaYili = toplamGun / 365.25;
+            
+            // Süre metnini göster
+            document.getElementById('kidem-sure-text').value = `${yil} yıl ${ay} ay ${gun} gün`;
+            
+            // En az 1 yıl çalışması gerekir
+            if (calismaYili < 1) {
+                document.getElementById('kidem-result').style.display = 'block';
+                document.getElementById('kidem-amount').textContent = '0₺ (Minimum 1 yıl gerekli)';
+                document.getElementById('kidem-sure-detail').textContent = `${yil} yıl ${ay} ay ${gun} gün`;
+                document.getElementById('kidem-gunluk').textContent = '0₺';
+                document.getElementById('kidem-hesaplanan').textContent = '0₺';
+                updateTotal('kidem', 0);
+                return;
+            }
+            
+            // İstifa durumunda kıdem tazminatı yok
+            if (neden === 'isciIstifa') {
+                document.getElementById('kidem-result').style.display = 'block';
+                document.getElementById('kidem-amount').textContent = '0₺ (İstifa - Hak Yok)';
+                document.getElementById('kidem-sure-detail').textContent = `${yil} yıl ${ay} ay ${gun} gün`;
+                document.getElementById('kidem-gunluk').textContent = '0₺';
+                document.getElementById('kidem-hesaplanan').textContent = '0₺';
+                updateTotal('kidem', 0);
+                return;
+            }
+            
+            // Günlük brüt hesaplama (aylık ÷ 30)
+            const gunlukBrut = brutMaas / 30;
+            
+            // Yıllık kıdem tazminatı (30 günlük brüt ücret)
+            const yillikKidem = gunlukBrut * 30;
+            
+            // 2025 kıdem tavan tutarı
+            const kidemTavani = 39866.78;
+            const tavanliYillikKidem = Math.min(yillikKidem, kidemTavani);
+            
+            // Toplam kıdem tazminatı hesaplama
+            let toplamKidem = 0;
+            
+            // Tam yıllar için
+            toplamKidem = tavanliYillikKidem * Math.floor(calismaYili);
+            
+            // Kalan aylar için (kesirli hesaplama)
+            const kalanKesir = calismaYili - Math.floor(calismaYili);
+            if (kalanKesir > 0) {
+                toplamKidem += tavanliYillikKidem * kalanKesir;
+            }
+            
+            // Sonuçları göster
+            document.getElementById('kidem-result').style.display = 'block';
+            document.getElementById('kidem-amount').textContent = formatCurrency(toplamKidem);
+            document.getElementById('kidem-sure-detail').textContent = `${yil} yıl ${ay} ay ${gun} gün (${calismaYili.toFixed(2)} yıl)`;
+            document.getElementById('kidem-gunluk').textContent = formatCurrency(gunlukBrut);
+            document.getElementById('kidem-hesaplanan').textContent = formatCurrency(yillikKidem * calismaYili) + (yillikKidem > kidemTavani ? ' (Tavan uygulandı)' : '');
+            
+            updateTotal('kidem', toplamKidem);
+        }
+        
+        // İhbar tazminatı hesaplama
+        function calculateIhbar() {
+            const brutMaas = parseFloat(document.getElementById('ihbar-brut').value) || 0;
+            const calismaGrubu = document.getElementById('ihbar-sure').value;
+            const ihbarYapildi = document.getElementById('ihbar-yapildi').value;
+            
+            if (brutMaas === 0) return;
+            
+            // İhbar yapıldıysa tazminat yok
+            if (ihbarYapildi === 'evet') {
+                document.getElementById('ihbar-result').style.display = 'block';
+                document.getElementById('ihbar-amount').textContent = '0₺ (İhbar Verildi)';
+                document.getElementById('ihbar-sure-text').textContent = '0 hafta';
+                document.getElementById('ihbar-gunluk').textContent = '0₺';
+                updateTotal('ihbar', 0);
+                return;
+            }
+            
+            // İhbar süresi hesaplama
+            let ihbarHafta = 0;
+            if (calismaGrubu === '0') ihbarHafta = 2;
+            else if (calismaGrubu === '6') ihbarHafta = 4;
+            else if (calismaGrubu === '1.5') ihbarHafta = 6;
+            else if (calismaGrubu === '3') ihbarHafta = 8;
+            
+            const ihbarGun = ihbarHafta * 7;
+            const gunlukBrut = brutMaas / 30;
+            const ihbarTazminat = gunlukBrut * ihbarGun;
+            
+            // Sonuçları göster
+            document.getElementById('ihbar-result').style.display = 'block';
+            document.getElementById('ihbar-amount').textContent = formatCurrency(ihbarTazminat);
+            document.getElementById('ihbar-sure-text').textContent = ihbarHafta + ' hafta (' + ihbarGun + ' gün)';
+            document.getElementById('ihbar-gunluk').textContent = formatCurrency(gunlukBrut);
+            
+            updateTotal('ihbar', ihbarTazminat);
+        }
+        
+        // Yıllık izin hesaplama
+        function calculateIzin() {
+            const aylikBrut = parseFloat(document.getElementById('izin-aylik-brut').value) || 0;
+            const izinGun = parseFloat(document.getElementById('izin-gun').value) || 0;
+            
+            // Günlük brüt otomatik hesapla
+            const gunlukBrut = aylikBrut / 30;
+            document.getElementById('izin-gunluk').value = gunlukBrut > 0 ? gunlukBrut.toFixed(2) : '';
+            
+            if (aylikBrut === 0 || izinGun === 0) return;
+            
+            const izinUcreti = gunlukBrut * izinGun;
+            
+            // Sonuçları göster
+            document.getElementById('izin-result').style.display = 'block';
+            document.getElementById('izin-amount').textContent = formatCurrency(izinUcreti);
+            document.getElementById('izin-gun-text').textContent = izinGun + ' gün';
+            document.getElementById('izin-gunluk-text').textContent = formatCurrency(gunlukBrut);
+            
+            updateTotal('izin', izinUcreti);
+        }
+        
+        // Toplam güncelleme
+        let totals = { kidem: 0, ihbar: 0, izin: 0, paket: 0 };
+        
+        function updateTotal(type, value) {
+            if (type && value !== undefined) {
+                totals[type] = value;
+            }
+            
+            document.getElementById('total-kidem').textContent = formatCurrency(totals.kidem);
+            document.getElementById('total-ihbar').textContent = formatCurrency(totals.ihbar);
+            document.getElementById('total-izin').textContent = formatCurrency(totals.izin);
+            document.getElementById('total-paket').textContent = formatCurrency(totals.paket);
+            
+            const grandTotal = totals.kidem + totals.ihbar + totals.izin + totals.paket;
+            document.getElementById('total-all').textContent = formatCurrency(grandTotal);
+        }
+        
+        // Çıkış paketi hesaplama
+        function calculatePaket() {
+            const brutMaas = parseFloat(document.getElementById('paket-brut').value) || 0;
+            const paketSayi = parseFloat(document.getElementById('paket-sayi').value) || 0;
+            const calisanTip = document.getElementById('paket-tip').value;
+            
+            if (brutMaas === 0 || paketSayi === 0) return;
+            
+            // Net maaş hesaplama (basitleştirilmiş)
+            const sgk = brutMaas * 0.14;
+            const issizlik = brutMaas * 0.01;
+            const matrah = brutMaas - sgk - issizlik;
+            
+            // Vergi hesaplama
+            let vergi = 0;
+            if (matrah <= 110000) {
+                vergi = matrah * 0.15;
+            } else if (matrah <= 230000) {
+                vergi = 110000 * 0.15 + (matrah - 110000) * 0.20;
+            } else if (matrah <= 580000) {
+                vergi = 110000 * 0.15 + 120000 * 0.20 + (matrah - 230000) * 0.27;
+            } else if (matrah <= 3000000) {
+                vergi = 110000 * 0.15 + 120000 * 0.20 + 350000 * 0.27 + (matrah - 580000) * 0.35;
+            } else {
+                vergi = 110000 * 0.15 + 120000 * 0.20 + 350000 * 0.27 + 2420000 * 0.35 + (matrah - 3000000) * 0.40;
+            }
+            
+            // Çalışan tipi indirimi
+            if (calisanTip === 'retired') {
+                vergi = vergi * 0.85; // %15 indirim
+            } else if (calisanTip === 'disabled-1') {
+                vergi = vergi * 0.80; // %20 indirim
+            } else if (calisanTip === 'disabled-2') {
+                vergi = vergi * 0.85; // %15 indirim
+            } else if (calisanTip === 'disabled-3') {
+                vergi = vergi * 0.90; // %10 indirim
+            }
+            
+            const damga = brutMaas * 0.00759;
+            const netMaas = matrah - vergi - damga;
+            
+            // Toplam paket
+            const toplamPaket = netMaas * paketSayi;
+            
+            // Sonuçları göster
+            document.getElementById('paket-result').style.display = 'block';
+            document.getElementById('paket-amount').textContent = formatCurrency(toplamPaket);
+            document.getElementById('paket-brut-text').textContent = formatCurrency(brutMaas);
+            document.getElementById('paket-net-text').textContent = formatCurrency(netMaas);
+            document.getElementById('paket-sayi-text').textContent = paketSayi + ' paket';
+            
+            updateTotal('paket', toplamPaket);
+        }
+        
+        // Para formatı
+        function formatCurrency(value) {
+            const symbols = {
+                TRY: '₺',
+                USD: '$',
+                EUR: '€',
+                CHF: 'CHF'
+            };
+            
+            // TL'den seçili dövize çevir
+            const convertedValue = currentCurrency === 'TRY' ? value : value / exchangeRates[currentCurrency];
+            
+            return convertedValue.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + symbols[currentCurrency];
+        }
+        
+        // Döviz değişikliği
+        function updateCurrency() {
+            currentCurrency = document.getElementById('currency-selector').value;
+            
+            // Tüm hesaplamaları güncelle
+            if (document.getElementById('kidem-brut').value) calculateKidem();
+            if (document.getElementById('ihbar-brut').value) calculateIhbar();
+            if (document.getElementById('izin-aylik-brut').value) calculateIzin();
+            if (document.getElementById('paket-brut').value) calculatePaket();
+            
+            updateTotal();
+        }
+        
+        // PDF Export
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const currencySymbol = currentCurrency === 'TRY' ? 'TL' : currentCurrency;
+            
+            // Baslik
+            doc.setFontSize(18);
+            doc.text('Tazminat Hesaplama Raporu', 14, 20);
+            doc.setFontSize(11);
+            doc.text('Tarih: ' + new Date().toLocaleDateString('tr-TR'), 14, 28);
+            doc.text('Doviz: ' + currencySymbol, 14, 34);
+            
+            let yPosition = 45;
+            
+            // Tüm hesaplamaların özet tablosu
+            const summaryData = [];
+            
+            if (totals.kidem > 0) {
+                const kidemAmount = currentCurrency === 'TRY' ? totals.kidem : totals.kidem / exchangeRates[currentCurrency];
+                summaryData.push(['Kidem Tazminati', kidemAmount.toFixed(2) + ' ' + currencySymbol]);
+            }
+            
+            if (totals.ihbar > 0) {
+                const ihbarAmount = currentCurrency === 'TRY' ? totals.ihbar : totals.ihbar / exchangeRates[currentCurrency];
+                summaryData.push(['Ihbar Tazminati', ihbarAmount.toFixed(2) + ' ' + currencySymbol]);
+            }
+            
+            if (totals.izin > 0) {
+                const izinAmount = currentCurrency === 'TRY' ? totals.izin : totals.izin / exchangeRates[currentCurrency];
+                summaryData.push(['Yillik Izin Ucreti', izinAmount.toFixed(2) + ' ' + currencySymbol]);
+            }
+            
+            if (totals.paket > 0) {
+                const paketAmount = currentCurrency === 'TRY' ? totals.paket : totals.paket / exchangeRates[currentCurrency];
+                summaryData.push(['Cikis Paketi', paketAmount.toFixed(2) + ' ' + currencySymbol]);
+            }
+            
+            const grandTotal = totals.kidem + totals.ihbar + totals.izin + totals.paket;
+            const totalAmount = currentCurrency === 'TRY' ? grandTotal : grandTotal / exchangeRates[currentCurrency];
+            summaryData.push(['GENEL TOPLAM', totalAmount.toFixed(2) + ' ' + currencySymbol]);
+            
+            doc.autoTable({
+                startY: yPosition,
+                head: [['Tazminat Turu', 'Tutar']],
+                body: summaryData,
+                theme: 'grid',
+                headStyles: { fillColor: [99, 102, 241], fontSize: 12 },
+                bodyStyles: { fontSize: 11 },
+                columnStyles: {
+                    0: { cellWidth: 100 },
+                    1: { cellWidth: 80, halign: 'right', fontStyle: 'bold' }
+                }
+            });
+            
+            yPosition = doc.lastAutoTable.finalY + 15;
+            
+            // Detaylar
+            doc.setFontSize(12);
+            doc.setTextColor(99, 102, 241);
+            doc.text('DETAYLAR', 14, yPosition);
+            yPosition += 10;
+            
+            const detailData = [];
+            
+            // Kıdem detayları
+            if (totals.kidem > 0) {
+                detailData.push(['Kidem - Giris', document.getElementById('kidem-giris')?.value || '-']);
+                detailData.push(['Kidem - Cikis', document.getElementById('kidem-cikis')?.value || '-']);
+                detailData.push(['Kidem - Sure', document.getElementById('kidem-sure-text')?.value || '-']);
+                detailData.push(['Kidem - Brut Maas', document.getElementById('kidem-brut')?.value + ' TL' || '-']);
+                detailData.push(['---', '---']);
+            }
+            
+            // İhbar detayları
+            if (totals.ihbar > 0) {
+                detailData.push(['Ihbar - Brut Maas', document.getElementById('ihbar-brut')?.value + ' TL' || '-']);
+                detailData.push(['Ihbar - Sure', document.getElementById('ihbar-sure')?.selectedOptions[0]?.text || '-']);
+                detailData.push(['---', '---']);
+            }
+            
+            // İzin detayları
+            if (totals.izin > 0) {
+                detailData.push(['Izin - Aylik Brut', document.getElementById('izin-aylik-brut')?.value + ' TL' || '-']);
+                detailData.push(['Izin - Gun Sayisi', document.getElementById('izin-gun')?.value + ' gun' || '-']);
+                detailData.push(['---', '---']);
+            }
+            
+            // Paket detayları
+            if (totals.paket > 0) {
+                detailData.push(['Paket - Brut Maas', document.getElementById('paket-brut')?.value + ' TL' || '-']);
+                detailData.push(['Paket - Sayi', document.getElementById('paket-sayi')?.value + ' paket' || '-']);
+            }
+            
+            if (detailData.length > 0) {
+                doc.autoTable({
+                    startY: yPosition,
+                    body: detailData,
+                    theme: 'plain',
+                    styles: { fontSize: 9 },
+                    columnStyles: {
+                        0: { cellWidth: 70, fontStyle: 'bold' },
+                        1: { cellWidth: 110 }
+                    }
+                });
+            }
+            
+            // İndir
+            doc.save(`Tazminat-Hesaplama-${new Date().toLocaleDateString('tr-TR').replace(/\./g, '-')}.pdf`);
+        }
+            doc.text('Tazminat Hesaplama Raporu', 14, 20);
+            doc.setFontSize(11);
+            doc.text(`Tarih: ${new Date().toLocaleDateString('tr-TR')}`, 14, 28);
+            
+            let yPosition = 40;
+            
+            // Kıdem Tazminatı
+            if (totals.kidem > 0) {
+                doc.setFontSize(14);
+                doc.setTextColor(99, 102, 241);
+                doc.text('💼 Kıdem Tazminatı', 14, yPosition);
+                yPosition += 8;
+                
+                doc.setFontSize(10);
+                doc.setTextColor(0, 0, 0);
+                
+                const kidemData = [
+                    ['İşe Giriş Tarihi', document.getElementById('kidem-giris')?.value || '-'],
+                    ['İşten Çıkış Tarihi', document.getElementById('kidem-cikis')?.value || '-'],
+                    ['Çalışma Süresi', document.getElementById('kidem-sure-text')?.value || '-'],
+                    ['Brüt Aylık Ücret', document.getElementById('kidem-brut')?.value + '₺' || '-'],
+                    ['Ayrılma Nedeni', document.getElementById('kidem-neden')?.selectedOptions[0]?.text || '-'],
+                    ['Kıdem Tazminatı', formatCurrency(totals.kidem)]
+                ];
+                
+                doc.autoTable({
+                    startY: yPosition,
+                    head: [['Alan', 'Değer']],
+                    body: kidemData,
+                    theme: 'grid',
+                    headStyles: { fillColor: [99, 102, 241] }
+                });
+                
+                yPosition = doc.lastAutoTable.finalY + 15;
+            }
+            
+            // İhbar Tazminatı
+            if (totals.ihbar > 0) {
+                doc.setFontSize(14);
+                doc.setTextColor(99, 102, 241);
+                doc.text('📢 İhbar Tazminatı', 14, yPosition);
+                yPosition += 8;
+                
+                doc.setFontSize(10);
+                doc.setTextColor(0, 0, 0);
+                
+                const ihbarData = [
+                    ['Brüt Aylık Ücret', document.getElementById('ihbar-brut')?.value + '₺' || '-'],
+                    ['İhbar Süresi', document.getElementById('ihbar-sure-text')?.textContent || '-'],
+                    ['İhbar Tazminatı', formatCurrency(totals.ihbar)]
+                ];
+                
+                doc.autoTable({
+                    startY: yPosition,
+                    head: [['Alan', 'Değer']],
+                    body: ihbarData,
+                    theme: 'grid',
+                    headStyles: { fillColor: [99, 102, 241] }
+                });
+                
+                yPosition = doc.lastAutoTable.finalY + 15;
+            }
+            
+            // Yıllık İzin
+            if (totals.izin > 0) {
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                
+                doc.setFontSize(14);
+                doc.setTextColor(99, 102, 241);
+                doc.text('🏖️ Kullanılmayan Yıllık İzin', 14, yPosition);
+                yPosition += 8;
+                
+                doc.setFontSize(10);
+                doc.setTextColor(0, 0, 0);
+                
+                const izinData = [
+                    ['Aylık Brüt Ücret', document.getElementById('izin-aylik-brut')?.value + '₺' || '-'],
+                    ['Günlük Brüt Ücret', document.getElementById('izin-gunluk')?.value + '₺' || '-'],
+                    ['İzin Günü', document.getElementById('izin-gun')?.value + ' gün' || '-'],
+                    ['Yıllık İzin Ücreti', formatCurrency(totals.izin)]
+                ];
+                
+                doc.autoTable({
+                    startY: yPosition,
+                    head: [['Alan', 'Değer']],
+                    body: izinData,
+                    theme: 'grid',
+                    headStyles: { fillColor: [99, 102, 241] }
+                });
+                
+                yPosition = doc.lastAutoTable.finalY + 15;
+            }
+            
+            // Çıkış Paketi
+            if (totals.paket > 0) {
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                
+                doc.setFontSize(14);
+                doc.setTextColor(245, 158, 11);
+                doc.text('🎁 Çıkış Paketi', 14, yPosition);
+                yPosition += 8;
+                
+                doc.setFontSize(10);
+                doc.setTextColor(0, 0, 0);
+                
+                const paketData = [
+                    ['Brüt Aylık Ücret', document.getElementById('paket-brut')?.value + '₺' || '-'],
+                    ['Paket Sayısı', document.getElementById('paket-sayi')?.value + ' paket' || '-'],
+                    ['Çalışan Tipi', document.getElementById('paket-tip')?.selectedOptions[0]?.text || '-'],
+                    ['Çıkış Paketi', formatCurrency(totals.paket)]
+                ];
+                
+                doc.autoTable({
+                    startY: yPosition,
+                    head: [['Alan', 'Değer']],
+                    body: paketData,
+                    theme: 'grid',
+                    headStyles: { fillColor: [245, 158, 11] }
+                });
+                
+                yPosition = doc.lastAutoTable.finalY + 15;
+            }
+            
+            // Genel Toplam
+            if (yPosition > 250) {
+                doc.addPage();
+                yPosition = 20;
+            }
+            
+            doc.setFontSize(16);
+            doc.setTextColor(22, 163, 74);
+            doc.text('GENEL TOPLAM', 14, yPosition);
+            yPosition += 10;
+            
+            const toplamData = [
+                ['Kıdem Tazminatı', formatCurrency(totals.kidem)],
+                ['İhbar Tazminatı', formatCurrency(totals.ihbar)],
+                ['Yıllık İzin Ücreti', formatCurrency(totals.izin)],
+                ['Çıkış Paketi', formatCurrency(totals.paket)],
+                ['GENEL TOPLAM', formatCurrency(totals.kidem + totals.ihbar + totals.izin + totals.paket)]
+            ];
+            
+            doc.autoTable({
+                startY: yPosition,
+                body: toplamData,
+                theme: 'grid',
+                styles: { fontSize: 11, fontStyle: 'bold' },
+                columnStyles: {
+                    0: { fillColor: [240, 253, 244] },
+                    1: { fillColor: [220, 252, 231], halign: 'right' }
+                }
+            });
+            
+            // İndir
+            doc.save(`Tazminat-Hesaplama-${new Date().toLocaleDateString('tr-TR').replace(/\./g, '-')}.pdf`);
+        }
+        
+        // Excel Export
+        function exportToExcel() {
+            const wb = XLSX.utils.book_new();
+            
+            const currencySymbol = currentCurrency === 'TRY' ? 'TL' : currentCurrency;
+            const currencyRate = currentCurrency === 'TRY' ? 1 : exchangeRates[currentCurrency];
+            
+            // Veri hazırlama
+            const data = [
+                ['Tazminat Hesaplama Raporu'],
+                ['Tarih: ' + new Date().toLocaleDateString('tr-TR')],
+                ['Döviz Birimi: ' + currencySymbol],
+                ['TCMB Satış Kuru (1 ' + currencySymbol + ' = ' + (currencyRate).toFixed(4) + ' TL)'],
+                [kurGuncellendi ? 'Kur Durumu: TCMB Güncel Verisi' : 'Kur Durumu: Varsayılan Değerler'],
+                [''],
+                ['KIDEM TAZMİNATI'],
+                ['İşe Giriş Tarihi', document.getElementById('kidem-giris')?.value || '-'],
+                ['İşten Çıkış Tarihi', document.getElementById('kidem-cikis')?.value || '-'],
+                ['Çalışma Süresi', document.getElementById('kidem-sure-text')?.value || '-'],
+                ['Brüt Aylık Ücret (TL)', document.getElementById('kidem-brut')?.value || '0'],
+                ['Ayrılma Nedeni', document.getElementById('kidem-neden')?.selectedOptions[0]?.text || '-'],
+                ['Kıdem Tazminatı (TL)', totals.kidem],
+                ['Kıdem Tazminatı (' + currencySymbol + ')', (totals.kidem / currencyRate).toFixed(2)],
+                [''],
+                ['İHBAR TAZMİNATI'],
+                ['Brüt Aylık Ücret (TL)', document.getElementById('ihbar-brut')?.value || '0'],
+                ['Çalışma Süresi', document.getElementById('ihbar-sure')?.selectedOptions[0]?.text || '-'],
+                ['İhbar Yapıldı mı?', document.getElementById('ihbar-yapildi')?.selectedOptions[0]?.text || '-'],
+                ['İhbar Tazminatı (TL)', totals.ihbar],
+                ['İhbar Tazminatı (' + currencySymbol + ')', (totals.ihbar / currencyRate).toFixed(2)],
+                [''],
+                ['KULLANILMAYAN YILLIK İZİN'],
+                ['Aylık Brüt Ücret (TL)', document.getElementById('izin-aylik-brut')?.value || '0'],
+                ['Günlük Brüt Ücret (TL)', document.getElementById('izin-gunluk')?.value || '0'],
+                ['İzin Günü', document.getElementById('izin-gun')?.value || '0'],
+                ['Yıllık İzin Ücreti (TL)', totals.izin],
+                ['Yıllık İzin Ücreti (' + currencySymbol + ')', (totals.izin / currencyRate).toFixed(2)],
+                [''],
+                ['ÇIKIŞ PAKETİ'],
+                ['Brüt Aylık Ücret (TL)', document.getElementById('paket-brut')?.value || '0'],
+                ['Paket Sayısı', document.getElementById('paket-sayi')?.value || '0'],
+                ['Çalışan Tipi', document.getElementById('paket-tip')?.selectedOptions[0]?.text || '-'],
+                ['Çıkış Paketi (TL)', totals.paket],
+                ['Çıkış Paketi (' + currencySymbol + ')', (totals.paket / currencyRate).toFixed(2)],
+                [''],
+                [''],
+                ['GENEL TOPLAM'],
+                ['Kıdem Tazminatı (TL)', totals.kidem],
+                ['İhbar Tazminatı (TL)', totals.ihbar],
+                ['Yıllık İzin Ücreti (TL)', totals.izin],
+                ['Çıkış Paketi (TL)', totals.paket],
+                ['TOPLAM (TL)', totals.kidem + totals.ihbar + totals.izin + totals.paket],
+                [''],
+                ['DÖVİZ CİNSİNDEN TOPLAM'],
+                ['Kıdem Tazminatı (' + currencySymbol + ')', (totals.kidem / currencyRate).toFixed(2)],
+                ['İhbar Tazminatı (' + currencySymbol + ')', (totals.ihbar / currencyRate).toFixed(2)],
+                ['Yıllık İzin Ücreti (' + currencySymbol + ')', (totals.izin / currencyRate).toFixed(2)],
+                ['Çıkış Paketi (' + currencySymbol + ')', (totals.paket / currencyRate).toFixed(2)],
+                ['TOPLAM (' + currencySymbol + ')', ((totals.kidem + totals.ihbar + totals.izin + totals.paket) / currencyRate).toFixed(2)]
+            ];
+            
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            
+            // Sütun genişlikleri
+            ws['!cols'] = [
+                { wch: 35 },
+                { wch: 25 }
+            ];
+            
+            XLSX.utils.book_append_sheet(wb, ws, 'Tazminat Hesaplama');
+            
+            // İndir
+            XLSX.writeFile(wb, `Tazminat-Hesaplama-${currencySymbol}-${new Date().toLocaleDateString('tr-TR').replace(/\./g, '-')}.xlsx`);
+        }
+    </script>
+</body>
+</html>
