@@ -1374,32 +1374,15 @@
                     }
                 }
                 
-                let totalCumulativeTax = 0;
-                if (cumulativeBase <= 110000) {
-                    totalCumulativeTax = cumulativeBase * 0.15;
-                } else if (cumulativeBase <= 230000) {
-                    totalCumulativeTax = 16500 + (cumulativeBase - 110000) * 0.20;
-                } else if (cumulativeBase <= 580000) {
-                    totalCumulativeTax = 40500 + (cumulativeBase - 230000) * 0.27;
-                } else if (cumulativeBase <= 3000000) {
-                    totalCumulativeTax = 135000 + (cumulativeBase - 580000) * 0.35;
-                } else {
-                    totalCumulativeTax = 982000 + (cumulativeBase - 3000000) * 0.40;
-                }
+                // Kümülatif vergi hesaplama - DOĞRU KÜMÜLATİF HESAPLAMA
+                const cumulativeBracketsCalc = calculateTaxBrackets(cumulativeBase);
+                let totalCumulativeTax = cumulativeBracketsCalc.total;
                 
                 tax = Math.max(0, totalCumulativeTax - previousTaxTotal);
             } else {
-                if (base <= 110000) {
-                    tax = base * 0.15;
-                } else if (base <= 230000) {
-                    tax = 16500 + (base - 110000) * 0.20;
-                } else if (base <= 580000) {
-                    tax = 40500 + (base - 230000) * 0.27;
-                } else if (base <= 3000000) {
-                    tax = 135000 + (base - 580000) * 0.35;
-                } else {
-                    tax = 982000 + (base - 3000000) * 0.40;
-                }
+                // Regular tax calculation (non-cumulative) - DOĞRU KÜMÜLATİF HESAPLAMA
+                const taxBracketsCalc = calculateTaxBrackets(base);
+                tax = taxBracketsCalc.total;
             }
             
             tax = tax * getTaxMultiplier();
