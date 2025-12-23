@@ -950,9 +950,10 @@
             
             // Detaylı tablo başlıkları (brutmaas.net benzeri) - İlk satır
             const theadRow1 = document.createElement('tr');
+            const inputColumnLabel = calculationDirection === 'brut-to-net' ? 'Brüt Ücret' : 'Net Ücret';
             theadRow1.innerHTML = `
                 <th rowspan="2">Ay</th>
-                <th rowspan="2">Brüt Ücret</th>
+                <th rowspan="2">${inputColumnLabel}</th>
                 ${advancedOptions.bonus ? '<th rowspan="2">İkramiye/Prim/<br>Yol Yemek Toplamı</th>' : ''}
                 <th colspan="2" style="background: #e0f2fe; color: #0369a1;">SGK + İşsizlik</th>
                 ${advancedOptions.sgkDeduct ? '<th rowspan="2">SGK Matrahından<br>Düş</th>' : ''}
@@ -966,8 +967,8 @@
                 <th rowspan="2">Damga<br>Vergisi</th>
                 ${advancedOptions.netDeduct ? '<th rowspan="2">Netten Düş<br>(BES vb.)</th>' : ''}
                 ${advancedOptions.netAdditions ? '<th rowspan="2">Net<br>İlaveler</th>' : ''}
-                <th rowspan="2">Net Ücret</th>
-                ${currentCurrency !== 'TL' ? '<th rowspan="2" style="background: #fef3c7;">Net Ücret (TL)</th>' : ''}
+                <th rowspan="2">${calculationDirection === 'brut-to-net' ? 'Net Ücret' : 'Brüt Ücret'}</th>
+                ${currentCurrency !== 'TL' ? `<th rowspan="2" style="background: #fef3c7;">${calculationDirection === 'brut-to-net' ? 'Net Ücret (TL)' : 'Brüt Ücret (TL)'}</th>` : ''}
             `;
             thead.appendChild(theadRow1);
             
@@ -1014,7 +1015,7 @@
             months.forEach((month, index) => {
                 const row = document.createElement('tr');
                 const inputPlaceholder = calculationDirection === 'brut-to-net' ? '26005.50' : '18591.59';
-                const inputLabel = calculationDirection === 'brut-to-net' ? 'Brüt' : 'Net';
+                const inputLabel = calculationDirection === 'brut-to-net' ? 'Brüt Ücret' : 'Net Ücret';
                 
                 // Ocak ayı için özel oninput handler
                 const inputHandler = index === 0 ? `copyToAllMonths(0); calculateRow(0);` : `calculateRow(${index})`;
@@ -1793,6 +1794,9 @@
             const cardContainer = document.getElementById('card-view');
             cardContainer.innerHTML = '';
             
+            const inputCardLabel = calculationDirection === 'brut-to-net' ? 'Brüt Maaş' : 'Net Maaş';
+            const resultCardLabel = calculationDirection === 'brut-to-net' ? 'Net Ücret' : 'Brüt Ücret';
+            
             months.forEach((month, index) => {
                 const card = document.createElement('div');
                 card.className = 'month-card';
@@ -1811,7 +1815,7 @@
                     </div>
                     
                     <div class="month-card-input-group">
-                        <label class="month-card-label">Maaş</label>
+                        <label class="month-card-label">${inputCardLabel}</label>
                         <input type="number" class="month-card-input" 
                                value="${brutInput}" 
                                placeholder="30.000,00"
@@ -1840,7 +1844,7 @@
                     
                     <div class="month-card-footer">
                         <div class="month-card-net">
-                            <span class="month-card-net-label">Net Ücret</span>
+                            <span class="month-card-net-label">${resultCardLabel}</span>
                             <span class="month-card-net-value" id="card-net-${index}">${net}</span>
                         </div>
                         
@@ -1979,7 +1983,10 @@
             doc.text(`Yil: ${currentYear} | Para Birimi: ${currentCurrency}`, 14, 22);
 
             // Build dynamic headers - Türkçe karaktersiz
-            const headers = ['Ay', 'Brut'];
+            const inputColumnLabel = calculationDirection === 'brut-to-net' ? 'Brut' : 'Net';
+            const resultColumnLabel = calculationDirection === 'brut-to-net' ? 'Net' : 'Brut';
+            
+            const headers = ['Ay', inputColumnLabel];
             if (advancedOptions.bonus) headers.push('Ikramiye/Prim');
             headers.push('SGK');
             if (advancedOptions.sgkDeduct) headers.push('SGK Dusulen');
@@ -1991,7 +1998,7 @@
             if (advancedOptions.stampDeduct) headers.push('Damga V. Dusulen');
             if (advancedOptions.netDeduct) headers.push('Netten Dusulen');
             if (advancedOptions.netAdditions) headers.push('Net Ilaveler');
-            headers.push('Net');
+            headers.push(resultColumnLabel);
 
             // Prepare table data
             const monthsLatin = [
@@ -2131,7 +2138,10 @@
             const wb = XLSX.utils.book_new();
             
             // Build dynamic headers
-            const headers = ['Ay', 'Brüt Ücret'];
+            const inputColumnLabel = calculationDirection === 'brut-to-net' ? 'Brüt Ücret' : 'Net Ücret';
+            const resultColumnLabel = calculationDirection === 'brut-to-net' ? 'Net Ücret' : 'Brüt Ücret';
+            
+            const headers = ['Ay', inputColumnLabel];
             if (advancedOptions.bonus) headers.push('İkramiye/Prim/Ek Ödemeler');
             headers.push('SGK İşçi');
             if (advancedOptions.sgkDeduct) headers.push('SGK Matrahından Düşülen');
@@ -2144,7 +2154,7 @@
             if (advancedOptions.stampDeduct) headers.push('Damga V. Matrahından Düşülen');
             if (advancedOptions.netDeduct) headers.push('Netten Düşülen (BES vb.)');
             if (advancedOptions.netAdditions) headers.push('Net İlaveler');
-            headers.push('Net Ücret');
+            headers.push(resultColumnLabel);
 
             const tableData = [headers];
 
