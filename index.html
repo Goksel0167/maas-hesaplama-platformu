@@ -1903,25 +1903,29 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('landscape'); // Landscape for more columns
 
+            // Türkçe karakter desteği için font ayarları
+            doc.setFont("helvetica");
+            doc.setLanguage("tr");
+
             // Add title
             doc.setFontSize(16);
-            doc.text('Maaşını Hesapla by Göksel - Yıllık Maaş Hesaplama', 14, 15);
+            doc.text('Maasini Hesapla by Goksel - Yillik Maas Hesaplama', 14, 15);
             doc.setFontSize(10);
-            doc.text(`Yıl: ${currentYear} | Para Birimi: ${currentCurrency}`, 14, 22);
+            doc.text(`Yil: ${currentYear} | Para Birimi: ${currentCurrency}`, 14, 22);
 
-            // Build dynamic headers
-            const headers = ['Ay', 'Brüt'];
-            if (advancedOptions.bonus) headers.push('İkramiye/Prim');
+            // Build dynamic headers - Türkçe karaktersiz
+            const headers = ['Ay', 'Brut'];
+            if (advancedOptions.bonus) headers.push('Ikramiye/Prim');
             headers.push('SGK');
-            if (advancedOptions.sgkDeduct) headers.push('SGK Düşülen');
-            headers.push('İşsizlik', 'Matrah');
-            if (advancedOptions.cumulative) headers.push('Kümülatif');
+            if (advancedOptions.sgkDeduct) headers.push('SGK Dusulen');
+            headers.push('Issizlik', 'Matrah');
+            if (advancedOptions.cumulative) headers.push('Kumulatif');
             headers.push('Vergi Dilimi', 'Toplam Gelir V.');
-            if (advancedOptions.taxDeduct) headers.push('Gelir V. Düşülen');
+            if (advancedOptions.taxDeduct) headers.push('Gelir V. Dusulen');
             headers.push('Damga V.');
-            if (advancedOptions.stampDeduct) headers.push('Damga V. Düşülen');
-            if (advancedOptions.netDeduct) headers.push('Netten Düşülen');
-            if (advancedOptions.netAdditions) headers.push('Net İlaveler');
+            if (advancedOptions.stampDeduct) headers.push('Damga V. Dusulen');
+            if (advancedOptions.netDeduct) headers.push('Netten Dusulen');
+            if (advancedOptions.netAdditions) headers.push('Net Ilaveler');
             headers.push('Net');
 
             // Prepare table data
