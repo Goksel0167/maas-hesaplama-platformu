@@ -1398,51 +1398,20 @@
                 const unemployment = brutEstimate * 0.01;
                 const base = brutEstimate - sgk - unemployment;
                 
-                // Calculate tax
-                let tax = 0;
-                if (advancedOptions.cumulative) {
-                    let cumulativeBase = base;
-                    let previousTaxTotal = 0;
-                    
-                    for (let i = 0; i < index; i++) {
-                        const prevBase = document.getElementById(`base-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
-                        if (prevBase) {
-                            cumulativeBase += parseFloat(prevBase) * exchangeRates[currentCurrency];
+                // Calculate tax using incremental method
+                let previousCumulativeBase = 0;
+                for (let i = 0; i < index; i++) {
+                    const prevBaseText = document.getElementById(`base-${i}`)?.textContent;
+                    if (prevBaseText) {
+                        const prevBase = parseFloat(prevBaseText.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.'));
+                        if (!isNaN(prevBase)) {
+                            previousCumulativeBase += prevBase * exchangeRates[currentCurrency];
                         }
-                        
-                        const prevTax = document.getElementById(`tax-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
-                        if (prevTax) {
-                            previousTaxTotal += parseFloat(prevTax) * exchangeRates[currentCurrency];
-                        }
-                    }
-                    
-                    let totalCumulativeTax = 0;
-                    if (cumulativeBase <= 110000) {
-                        totalCumulativeTax = cumulativeBase * 0.15;
-                    } else if (cumulativeBase <= 230000) {
-                        totalCumulativeTax = 16500 + (cumulativeBase - 110000) * 0.20;
-                    } else if (cumulativeBase <= 580000) {
-                        totalCumulativeTax = 40500 + (cumulativeBase - 230000) * 0.27;
-                    } else if (cumulativeBase <= 3000000) {
-                        totalCumulativeTax = 135000 + (cumulativeBase - 580000) * 0.35;
-                    } else {
-                        totalCumulativeTax = 982000 + (cumulativeBase - 3000000) * 0.40;
-                    }
-                    
-                    tax = Math.max(0, totalCumulativeTax - previousTaxTotal);
-                } else {
-                    if (base <= 110000) {
-                        tax = base * 0.15;
-                    } else if (base <= 230000) {
-                        tax = 16500 + (base - 110000) * 0.20;
-                    } else if (base <= 580000) {
-                        tax = 40500 + (base - 230000) * 0.27;
-                    } else if (base <= 3000000) {
-                        tax = 135000 + (base - 580000) * 0.35;
-                    } else {
-                        tax = 982000 + (base - 3000000) * 0.40;
                     }
                 }
+                
+                const incrementalResult = calculateIncrementalTax(previousCumulativeBase, base);
+                let tax = incrementalResult.tax;
                 
                 // Apply employee type and AGI
                 tax = tax * getTaxMultiplier();
