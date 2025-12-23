@@ -27,15 +27,14 @@ function calculateNetFromBrut(brutAmount) {
     const unemployment = brut * 0.01;
     const matrah = brut - sgk - unemployment;
 
-    // Tax calculation based on brackets
+    // Tax calculation based on brackets (Doğru kümülatif hesaplama)
     let tax = 0;
     for (const bracket of taxBrackets2025) {
         if (matrah > bracket.min) {
-            const taxableInBracket = Math.min(matrah, bracket.max) - bracket.min;
-            if (bracket.fixedTax > 0) {
-                tax = bracket.fixedTax + (matrah - bracket.min) * bracket.rate;
-            } else {
-                tax = taxableInBracket * bracket.rate;
+            const maxAmount = bracket.max === Infinity ? matrah : Math.min(matrah, bracket.max);
+            const taxableInBracket = maxAmount - bracket.min;
+            if (taxableInBracket > 0) {
+                tax += taxableInBracket * bracket.rate;
             }
         }
         if (matrah <= bracket.max) break;
