@@ -564,59 +564,46 @@
         let currentCurrency = 'TRY';
         let kurGuncellendi = false;
         
-        // TCMB'den kurları çek
+        // Güncel döviz kurlarını çek - exchangerate.host API
         async function fetchExchangeRates() {
             try {
-                // TCMB XML URL'i - CORS proxy üzerinden
-                const tcmbUrl = 'https://www.tcmb.gov.tr/kurlar/today.xml';
-                const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                // exchangerate.host API - Ücretsiz, güvenilir, CORS sorunu yok
+                const apiUrl = 'https://api.exchangerate.host/latest?base=USD&symbols=TRY';
                 
-                const response = await fetch(proxyUrl + encodeURIComponent(tcmbUrl));
-                const xmlText = await response.text();
+                const response = await fetch(apiUrl);
+                const data = await response.json();
                 
-                // XML parse
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-                
-                // Hata kontrolü
-                if (xmlDoc.getElementsByTagName('parsererror').length > 0) {
-                    throw new Error('XML parse hatası');
-                }
-                
-                // Döviz kurlarını çek (Satış kuru - ForexSelling)
-                const currencies = xmlDoc.getElementsByTagName('Currency');
-                
-                if (currencies.length === 0) {
-                    throw new Error('Kur bilgisi bulunamadı');
-                }
-                
-                for (let currency of currencies) {
-                    const code = currency.getAttribute('CurrencyCode');
-                    const forexSelling = currency.getElementsByTagName('ForexSelling')[0];
+                if (data.success && data.rates && data.rates.TRY) {
+                    // USD bazlı TRY kurunu al
+                    exchangeRates.USD = data.rates.TRY;
                     
-                    if (forexSelling && forexSelling.textContent) {
-                        const rate = parseFloat(forexSelling.textContent);
-                        
-                        if (!isNaN(rate) && rate > 0) {
-                            if (code === 'USD') {
-                                exchangeRates.USD = rate;
-                            } else if (code === 'EUR') {
-                                exchangeRates.EUR = rate;
-                            } else if (code === 'CHF') {
-                                exchangeRates.CHF = rate;
-                            }
-                        }
+                    // EUR için ayrı istek
+                    const eurResponse = await fetch('https://api.exchangerate.host/latest?base=EUR&symbols=TRY');
+                    const eurData = await eurResponse.json();
+                    
+                    if (eurData.success && eurData.rates && eurData.rates.TRY) {
+                        exchangeRates.EUR = eurData.rates.TRY;
                     }
+                    
+                    // CHF için ayrı istek
+                    const chfResponse = await fetch('https://api.exchangerate.host/latest?base=CHF&symbols=TRY');
+                    const chfData = await chfResponse.json();
+                    
+                    if (chfData.success && chfData.rates && chfData.rates.TRY) {
+                        exchangeRates.CHF = chfData.rates.TRY;
+                    }
+                    
+                    kurGuncellendi = true;
+                    console.log('✅ Güncel Döviz Kurları:', exchangeRates);
+                } else {
+                    throw new Error('Kur verisi alınamadı');
                 }
-                
-                kurGuncellendi = true;
-                console.log('✅ TCMB Kurları Güncellendi:', exchangeRates);
                 
                 // Kur bilgisini göster
                 showExchangeRateInfo();
                 
             } catch (error) {
-                console.error('⚠️ TCMB kurları alınamadı, varsayılan kurlar kullanılıyor:', error);
+                console.error('⚠️ Kurlar alınamadı, varsayılan kurlar kullanılıyor:', error);
                 kurGuncellendi = false;
                 showExchangeRateInfo();
             }
@@ -627,9 +614,9 @@
             const infoDiv = document.getElementById('exchange-rate-info');
             if (infoDiv) {
                 const today = new Date().toLocaleDateString('tr-TR');
-                const kaynak = kurGuncellendi ? '✅ TCMB Güncel' : '⚠️ Varsayılan';
+                const kaynak = kurGuncellendi ? '✅ Güncel Kurlar' : '⚠️ Varsayılan Kurlar';
                 infoDiv.innerHTML = `
-                    <strong>📊 ${kaynak} Satış Kurları (${today}):</strong><br>
+                    <strong>📊 ${kaynak} (${today}):</strong><br>
                     💵 USD: ${exchangeRates.USD.toFixed(4)} TL |
                     💶 EUR: ${exchangeRates.EUR.toFixed(4)} TL |
                     💰 CHF: ${exchangeRates.CHF.toFixed(4)} TL
