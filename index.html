@@ -1733,52 +1733,9 @@
         // Select direction
         function selectDirection(direction) {
             calculationDirection = direction;
-            const text = direction === 'brut-to-net' ? 'Brütten Nete' : 'Netten Brüte';
-            document.getElementById('calc-direction-text').textContent = text;
             
-            // Update main title
-            const mainTitle = document.querySelector('.main-card h2');
-            if (mainTitle) {
-                mainTitle.textContent = direction === 'brut-to-net' 
-                    ? 'Brütten Nete Maaş Hesaplama 2025' 
-                    : 'Netten Brüte Maaş Hesaplama 2025';
-            }
-            
-            // Update table header
-            const firstHeader = document.querySelector('#monthly-table thead tr th:nth-child(2)');
-            if (firstHeader) {
-                firstHeader.textContent = direction === 'brut-to-net' ? 'Brüt Ücret' : 'Net Ücret';
-            }
-            
-            // Update last header
-            const lastHeader = document.querySelector('#monthly-table thead tr th:last-child');
-            if (lastHeader) {
-                lastHeader.textContent = direction === 'brut-to-net' ? 'Net Ücret' : 'Brüt Ücret';
-            }
-            
-            // Update input placeholders
-            for (let i = 0; i < 12; i++) {
-                const input = document.getElementById(`brut-${i}`);
-                if (input) {
-                    input.placeholder = direction === 'brut-to-net' ? '26005.50' : '18591.59';
-                    input.value = ''; // Clear values
-                }
-            }
-            
-            document.querySelectorAll('#calc-direction .dropdown-item').forEach(item => {
-                item.classList.remove('selected');
-            });
-            event.target.classList.add('selected');
-            
-            toggleDropdown('calc-direction');
-            
-            // Recalculate if there are values
-            for (let i = 0; i < 12; i++) {
-                const input = document.getElementById(`brut-${i}`);
-                if (input && input.value) {
-                    calculateRow(i);
-                }
-            }
+            // Sayfa yenileme ile tabloyu tamamen sıfırla
+            location.reload();
         }
 
         // Select view
