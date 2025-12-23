@@ -545,6 +545,7 @@
                     <div class="result-box" style="background: linear-gradient(135deg, #f0fdf4, #bbf7d0); border-color: #16a34a; margin-top: 20px;">
                         <h3 style="color: #16a34a;">GENEL TOPLAM (Tüm Haklar)</h3>
                         <div class="amount" id="total-all" style="font-size: 2em; color: #16a34a;">0₺</div>
+                        <div class="amount" id="total-all-currency" style="font-size: 1.5em; color: #16a34a; margin-top: 10px; display: none;">0$</div>
                     </div>
                     </div>
                 </div>
@@ -800,6 +801,17 @@
             
             const grandTotal = totals.kidem + totals.ihbar + totals.izin + totals.paket;
             document.getElementById('total-all').textContent = formatCurrency(grandTotal);
+            
+            // Döviz karşılığını göster (TRY dışında)
+            const totalCurrencyDiv = document.getElementById('total-all-currency');
+            if (currentCurrency !== 'TRY') {
+                const grandTotalInCurrency = grandTotal / exchangeRates[currentCurrency];
+                const currencySymbol = currentCurrency === 'USD' ? '$' : (currentCurrency === 'EUR' ? '€' : 'CHF');
+                totalCurrencyDiv.textContent = grandTotalInCurrency.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + currencySymbol;
+                totalCurrencyDiv.style.display = 'block';
+            } else {
+                totalCurrencyDiv.style.display = 'none';
+            }
         }
         
         // Çıkış paketi hesaplama
