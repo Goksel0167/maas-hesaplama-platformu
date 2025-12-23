@@ -564,37 +564,24 @@
         let currentCurrency = 'TRY';
         let kurGuncellendi = false;
         
-        // Güncel döviz kurlarını çek - exchangerate.host API
+        // floatrates.com API kullanarak güncel kurları çek
         async function fetchExchangeRates() {
             try {
-                // exchangerate.host API - Ücretsiz, güvenilir, CORS sorunu yok
-                const apiUrl = 'https://api.exchangerate.host/latest?base=USD&symbols=TRY';
+                // floatrates.com API - TRY bazlı kurlar, günlük güncellenir
+                const apiUrl = 'https://www.floatrates.com/daily/try.json';
                 
                 const response = await fetch(apiUrl);
                 const data = await response.json();
                 
-                if (data.success && data.rates && data.rates.TRY) {
-                    // USD bazlı TRY kurunu al
-                    exchangeRates.USD = data.rates.TRY;
-                    
-                    // EUR için ayrı istek
-                    const eurResponse = await fetch('https://api.exchangerate.host/latest?base=EUR&symbols=TRY');
-                    const eurData = await eurResponse.json();
-                    
-                    if (eurData.success && eurData.rates && eurData.rates.TRY) {
-                        exchangeRates.EUR = eurData.rates.TRY;
-                    }
-                    
-                    // CHF için ayrı istek
-                    const chfResponse = await fetch('https://api.exchangerate.host/latest?base=CHF&symbols=TRY');
-                    const chfData = await chfResponse.json();
-                    
-                    if (chfData.success && chfData.rates && chfData.rates.TRY) {
-                        exchangeRates.CHF = chfData.rates.TRY;
-                    }
+                if (data && data.usd && data.eur && data.chf) {
+                    // floatrates TRY bazlı döndürüyor, biz USD/EUR/CHF -> TRY'ye ihtiyacımız var
+                    // Örn: data.usd.rate = 0.03 ise (1 TRY = 0.03 USD), 1 USD = 1/0.03 = 33.33 TRY
+                    exchangeRates.USD = 1 / data.usd.rate;
+                    exchangeRates.EUR = 1 / data.eur.rate;
+                    exchangeRates.CHF = 1 / data.chf.rate;
                     
                     kurGuncellendi = true;
-                    console.log('✅ Güncel Döviz Kurları:', exchangeRates);
+                    console.log('✅ Güncel Döviz Kurları (floatrates.com):', exchangeRates);
                 } else {
                     throw new Error('Kur verisi alınamadı');
                 }

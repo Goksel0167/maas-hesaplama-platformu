@@ -844,29 +844,23 @@
         let calculationDirection = localStorage.getItem('calculationDirection') || 'brut-to-net';
         let kurGuncellendi = false;
 
-        // TCMB'den güncel kurları çek - Alternatif API: exchangerate.host
+        // floatrates.com API kullanarak güncel kurları çek
         async function fetchExchangeRates() {
             try {
-                // exchangerate.host API - Ücretsiz, API key gerektirmiyor, CORS sorunu yok
-                const apiUrl = 'https://api.exchangerate.host/latest?base=USD&symbols=TRY';
+                // floatrates.com API - TRY bazlı kurlar, günlük güncellenir
+                const apiUrl = 'https://www.floatrates.com/daily/try.json';
                 
                 const response = await fetch(apiUrl);
                 const data = await response.json();
                 
-                if (data.success && data.rates && data.rates.TRY) {
-                    // USD bazlı TRY kurunu al
-                    exchangeRates.USD = data.rates.TRY;
-                    
-                    // EUR için ayrı istek
-                    const eurResponse = await fetch('https://api.exchangerate.host/latest?base=EUR&symbols=TRY');
-                    const eurData = await eurResponse.json();
-                    
-                    if (eurData.success && eurData.rates && eurData.rates.TRY) {
-                        exchangeRates.EUR = eurData.rates.TRY;
-                    }
+                if (data && data.usd && data.eur) {
+                    // floatrates TRY bazlı döndürüyor, biz USD/EUR -> TRY'ye ihtiyacımız var
+                    // Örn: data.usd.rate = 0.03 ise (1 TRY = 0.03 USD), 1 USD = 1/0.03 = 33.33 TRY
+                    exchangeRates.USD = 1 / data.usd.rate;
+                    exchangeRates.EUR = 1 / data.eur.rate;
                     
                     kurGuncellendi = true;
-                    console.log('✅ Güncel Döviz Kurları:', exchangeRates);
+                    console.log('✅ Güncel Döviz Kurları (floatrates.com):', exchangeRates);
                 } else {
                     throw new Error('Kur verisi alınamadı');
                 }
