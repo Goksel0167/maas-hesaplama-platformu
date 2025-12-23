@@ -1104,6 +1104,59 @@
             return brackets;
         }
         
+        // BU AYIN matrahının dilim geçişini hesapla (INCREMENTAL)
+        function calculateIncrementalTax(previousCumulativeBase, currentMonthBase) {
+            const yearData = getYearData(currentYear);
+            const taxBracketsData = yearData.taxBrackets;
+            const totalCumulative = previousCumulativeBase + currentMonthBase;
+            
+            let tax = 0;
+            let remainingAmount = currentMonthBase;
+            
+            const brackets = {
+                tax15: 0,
+                tax20: 0,
+                tax27: 0,
+                tax35: 0,
+                tax40: 0
+            };
+            
+            // Her dilimi kontrol et
+            for (const bracket of taxBracketsData) {
+                if (remainingAmount <= 0) break;
+                
+                // Bu dilimde ne kadar yer var? (önceki kümülatif matraha göre)
+                const spaceInBracket = Math.max(0, bracket.max - Math.max(bracket.min, previousCumulativeBase));
+                
+                if (spaceInBracket > 0 && totalCumulative > bracket.min) {
+                    // Bu ayın ne kadarı bu dilime giriyor?
+                    const amountInThisBracket = Math.min(remainingAmount, spaceInBracket);
+                    const taxInBracket = amountInThisBracket * bracket.rate;
+                    tax += taxInBracket;
+                    
+                    // Dilime göre kaydet
+                    if (bracket.rate === 0.15) {
+                        brackets.tax15 = taxInBracket;
+                    } else if (bracket.rate === 0.20) {
+                        brackets.tax20 = taxInBracket;
+                    } else if (bracket.rate === 0.27) {
+                        brackets.tax27 = taxInBracket;
+                    } else if (bracket.rate === 0.35) {
+                        brackets.tax35 = taxInBracket;
+                    } else if (bracket.rate === 0.40) {
+                        brackets.tax40 = taxInBracket;
+                    }
+                    
+                    remainingAmount -= amountInThisBracket;
+                }
+            }
+            
+            return {
+                tax: tax,
+                brackets: brackets
+            };
+        }
+        
         // Brütten Nete Hesaplama
         function calculateBrutToNet(index) {
             const brutInput = document.getElementById(`brut-${index}`).value;
@@ -1134,42 +1187,26 @@
             const unemployment = brut * 0.01;
             const base = brut - sgk - unemployment;
 
-            // Income tax calculation - TÜRKİYE'DE HER ZAMAN KÜMÜLATİF!
+            // Vergi hesaplama - TÜRKİYE DOĞRU YÖNTEM: "Dilim geçişi tek tek"
             let tax = 0;
             let taxBrackets = { tax15: 0, tax20: 0, tax27: 0, tax35: 0, tax40: 0 };
             
-            // Kümülatif vergi matrahı hesaplama (Ocak'tan bu aya kadar)
-            let cumulativeBase = base;
-            let previousTaxTotal = 0;
-            
-            // Önceki ayların matrah ve vergilerini topla
+            // Önceki ayların kümülatif matrahını hesapla
+            let previousCumulativeBase = 0;
             for (let i = 0; i < index; i++) {
                 const prevBaseText = document.getElementById(`base-${i}`)?.textContent;
                 if (prevBaseText) {
                     const prevBase = parseFloat(prevBaseText.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.'));
                     if (!isNaN(prevBase)) {
-                        cumulativeBase += prevBase * exchangeRates[currentCurrency];
-                    }
-                }
-                
-                const prevTaxText = document.getElementById(`tax-${i}`)?.textContent;
-                if (prevTaxText) {
-                    const prevTax = parseFloat(prevTaxText.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.'));
-                    if (!isNaN(prevTax)) {
-                        previousTaxTotal += prevTax * exchangeRates[currentCurrency];
+                        previousCumulativeBase += prevBase * exchangeRates[currentCurrency];
                     }
                 }
             }
             
-            // Kümülatif matrah üzerinden toplam vergi hesapla
-            const cumulativeBrackets = calculateTaxBrackets(cumulativeBase);
-            let totalCumulativeTax = cumulativeBrackets.total;
-            
-            // Bu ayın vergisi = Toplam kümülatif vergi - Önceki ayların vergileri
-            tax = Math.max(0, totalCumulativeTax - previousTaxTotal);
-            
-            // Gösterim için: Bu ayın katkısını dilimler halinde göster
-            taxBrackets = cumulativeBrackets;
+            // BU AYIN matrahının dilim geçişini hesapla (incremental)
+            const incrementalResult = calculateIncrementalTax(previousCumulativeBase, base);
+            tax = incrementalResult.tax;
+            taxBrackets = incrementalResult.brackets;
             
             // Apply employee type tax reduction
             tax = tax * getTaxMultiplier();
@@ -1355,36 +1392,22 @@
             const unemployment = brut * 0.01;
             const base = brut - sgk - unemployment;
             
-            // Vergi hesaplama - TÜRKİYE'DE HER ZAMAN KÜMÜLATİF!
-            let tax = 0;
-            let cumulativeBase = base;
-            let previousTaxTotal = 0;
-            
-            // Önceki ayların matrah ve vergilerini topla
+            // Vergi hesaplama - TÜRKİYE DOĞRU YÖNTEM: "Dilim geçişi tek tek"
+            // Önceki ayların kümülatif matrahını hesapla
+            let previousCumulativeBase = 0;
             for (let i = 0; i < index; i++) {
                 const prevBaseText = document.getElementById(`base-${i}`)?.textContent;
                 if (prevBaseText) {
                     const prevBase = parseFloat(prevBaseText.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.'));
                     if (!isNaN(prevBase)) {
-                        cumulativeBase += prevBase * exchangeRates[currentCurrency];
-                    }
-                }
-                
-                const prevTaxText = document.getElementById(`tax-${i}`)?.textContent;
-                if (prevTaxText) {
-                    const prevTax = parseFloat(prevTaxText.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.'));
-                    if (!isNaN(prevTax)) {
-                        previousTaxTotal += prevTax * exchangeRates[currentCurrency];
+                        previousCumulativeBase += prevBase * exchangeRates[currentCurrency];
                     }
                 }
             }
             
-            // Kümülatif matrah üzerinden toplam vergi hesapla
-            const cumulativeBracketsCalc = calculateTaxBrackets(cumulativeBase);
-            let totalCumulativeTax = cumulativeBracketsCalc.total;
-            
-            // Bu ayın vergisi = Toplam kümülatif vergi - Önceki ayların vergileri
-            tax = Math.max(0, totalCumulativeTax - previousTaxTotal);
+            // BU AYIN matrahının dilim geçişini hesapla (incremental)
+            const incrementalResult = calculateIncrementalTax(previousCumulativeBase, base);
+            let tax = incrementalResult.tax;
             
             tax = tax * getTaxMultiplier();
             if (advancedOptions.agi) {
@@ -1392,8 +1415,8 @@
                 tax = Math.max(0, tax - agiAmount);
             }
             
-            // Calculate tax brackets for display (kümülatif)
-            const taxBrackets = cumulativeBracketsCalc;
+            // Calculate tax brackets for display
+            const taxBrackets = incrementalResult.brackets;
             
             const stamp = brut * 0.00759;
             const net = base - tax - stamp;
