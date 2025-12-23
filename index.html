@@ -1134,44 +1134,42 @@
             const unemployment = brut * 0.01;
             const base = brut - sgk - unemployment;
 
-            // Income tax calculation
+            // Income tax calculation - TÜRKİYE'DE HER ZAMAN KÜMÜLATİF!
             let tax = 0;
             let taxBrackets = { tax15: 0, tax20: 0, tax27: 0, tax35: 0, tax40: 0 };
             
-            if (advancedOptions.cumulative) {
-                // Cumulative tax calculation: Calculate total tax up to this month, then subtract previous months' taxes
-                let cumulativeBase = base;
-                let previousTaxTotal = 0;
-                
-                // Calculate cumulative base and previous taxes
-                for (let i = 0; i < index; i++) {
-                    const prevBase = document.getElementById(`base-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
-                    if (prevBase) {
-                        cumulativeBase += parseFloat(prevBase) * exchangeRates[currentCurrency];
-                    }
-                    
-                    const prevTax = document.getElementById(`tax-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
-                    if (prevTax) {
-                        previousTaxTotal += parseFloat(prevTax) * exchangeRates[currentCurrency];
+            // Kümülatif vergi matrahı hesaplama (Ocak'tan bu aya kadar)
+            let cumulativeBase = base;
+            let previousTaxTotal = 0;
+            
+            // Önceki ayların matrah ve vergilerini topla
+            for (let i = 0; i < index; i++) {
+                const prevBaseText = document.getElementById(`base-${i}`)?.textContent;
+                if (prevBaseText) {
+                    const prevBase = parseFloat(prevBaseText.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.'));
+                    if (!isNaN(prevBase)) {
+                        cumulativeBase += prevBase * exchangeRates[currentCurrency];
                     }
                 }
                 
-                // Calculate total tax on cumulative base
-                const cumulativeBrackets = calculateTaxBrackets(cumulativeBase);
-                let totalCumulativeTax = cumulativeBrackets.total;
-                
-                // This month's tax = total cumulative tax - previous months' taxes
-                tax = Math.max(0, totalCumulativeTax - previousTaxTotal);
-                
-                // For display, calculate this month's contribution to each bracket
-                // This is approximate for cumulative - just use current month's brackets
-                taxBrackets = calculateTaxBrackets(base);
-                
-            } else {
-                // Regular tax calculation (non-cumulative)
-                taxBrackets = calculateTaxBrackets(base);
-                tax = taxBrackets.total;
+                const prevTaxText = document.getElementById(`tax-${i}`)?.textContent;
+                if (prevTaxText) {
+                    const prevTax = parseFloat(prevTaxText.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.'));
+                    if (!isNaN(prevTax)) {
+                        previousTaxTotal += prevTax * exchangeRates[currentCurrency];
+                    }
+                }
             }
+            
+            // Kümülatif matrah üzerinden toplam vergi hesapla
+            const cumulativeBrackets = calculateTaxBrackets(cumulativeBase);
+            let totalCumulativeTax = cumulativeBrackets.total;
+            
+            // Bu ayın vergisi = Toplam kümülatif vergi - Önceki ayların vergileri
+            tax = Math.max(0, totalCumulativeTax - previousTaxTotal);
+            
+            // Gösterim için: Bu ayın katkısını dilimler halinde göster
+            taxBrackets = cumulativeBrackets;
             
             // Apply employee type tax reduction
             tax = tax * getTaxMultiplier();
@@ -1357,33 +1355,36 @@
             const unemployment = brut * 0.01;
             const base = brut - sgk - unemployment;
             
+            // Vergi hesaplama - TÜRKİYE'DE HER ZAMAN KÜMÜLATİF!
             let tax = 0;
-            if (advancedOptions.cumulative) {
-                let cumulativeBase = base;
-                let previousTaxTotal = 0;
-                
-                for (let i = 0; i < index; i++) {
-                    const prevBase = document.getElementById(`base-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
-                    if (prevBase) {
-                        cumulativeBase += parseFloat(prevBase) * exchangeRates[currentCurrency];
-                    }
-                    
-                    const prevTax = document.getElementById(`tax-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
-                    if (prevTax) {
-                        previousTaxTotal += parseFloat(prevTax) * exchangeRates[currentCurrency];
+            let cumulativeBase = base;
+            let previousTaxTotal = 0;
+            
+            // Önceki ayların matrah ve vergilerini topla
+            for (let i = 0; i < index; i++) {
+                const prevBaseText = document.getElementById(`base-${i}`)?.textContent;
+                if (prevBaseText) {
+                    const prevBase = parseFloat(prevBaseText.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.'));
+                    if (!isNaN(prevBase)) {
+                        cumulativeBase += prevBase * exchangeRates[currentCurrency];
                     }
                 }
                 
-                // Kümülatif vergi hesaplama - DOĞRU KÜMÜLATİF HESAPLAMA
-                const cumulativeBracketsCalc = calculateTaxBrackets(cumulativeBase);
-                let totalCumulativeTax = cumulativeBracketsCalc.total;
-                
-                tax = Math.max(0, totalCumulativeTax - previousTaxTotal);
-            } else {
-                // Regular tax calculation (non-cumulative) - DOĞRU KÜMÜLATİF HESAPLAMA
-                const taxBracketsCalc = calculateTaxBrackets(base);
-                tax = taxBracketsCalc.total;
+                const prevTaxText = document.getElementById(`tax-${i}`)?.textContent;
+                if (prevTaxText) {
+                    const prevTax = parseFloat(prevTaxText.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.'));
+                    if (!isNaN(prevTax)) {
+                        previousTaxTotal += prevTax * exchangeRates[currentCurrency];
+                    }
+                }
             }
+            
+            // Kümülatif matrah üzerinden toplam vergi hesapla
+            const cumulativeBracketsCalc = calculateTaxBrackets(cumulativeBase);
+            let totalCumulativeTax = cumulativeBracketsCalc.total;
+            
+            // Bu ayın vergisi = Toplam kümülatif vergi - Önceki ayların vergileri
+            tax = Math.max(0, totalCumulativeTax - previousTaxTotal);
             
             tax = tax * getTaxMultiplier();
             if (advancedOptions.agi) {
@@ -1391,8 +1392,8 @@
                 tax = Math.max(0, tax - agiAmount);
             }
             
-            // Calculate tax brackets for display
-            const taxBrackets = calculateTaxBrackets(base);
+            // Calculate tax brackets for display (kümülatif)
+            const taxBrackets = cumulativeBracketsCalc;
             
             const stamp = brut * 0.00759;
             const net = base - tax - stamp;
