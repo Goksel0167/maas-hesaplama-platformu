@@ -1929,9 +1929,14 @@
             headers.push('Net');
 
             // Prepare table data
+            const monthsLatin = [
+                'Ocak', 'Subat', 'Mart', 'Nisan', 'Mayis', 'Haziran',
+                'Temmuz', 'Agustos', 'Eylul', 'Ekim', 'Kasim', 'Aralik'
+            ];
+            
             const tableData = [];
             for (let i = 0; i < 12; i++) {
-                const row = [`${i + 1}. ${months[i]}`];
+                const row = [`${i + 1}. ${monthsLatin[i]}`];
                 
                 row.push(document.getElementById(`brut-${i}`)?.value || '0');
                 
@@ -1952,8 +1957,13 @@
                     row.push(document.getElementById(`cumulative-${i}`)?.textContent.replace(currencySymbol, '') || '0');
                 }
                 
-                // Vergi dilimi - Sadece metin olarak
-                const bracketText = document.getElementById(`tax-bracket-${i}`)?.textContent.replace(/\s+/g, ' ').trim() || '-';
+                // Vergi dilimi - Sadece metin olarak (span'ların içindeki metni al)
+                const bracketElement = document.getElementById(`tax-bracket-${i}`);
+                let bracketText = '-';
+                if (bracketElement) {
+                    // textContent ile tüm span'ların içindeki metni birleştir
+                    bracketText = bracketElement.textContent.replace(/\s+/g, ' ').trim() || '-';
+                }
                 row.push(bracketText);
                 
                 row.push(document.getElementById(`tax-${i}`)?.textContent.replace(currencySymbol, '') || '0');
@@ -2095,8 +2105,12 @@
                     row.push(parseFloat(cumulativeText) || 0);
                 }
                 
-                // Vergi dilimi - Sadece metin olarak
-                const bracketTextExcel = document.getElementById(`tax-bracket-${i}`)?.textContent.replace(/\s+/g, ' ').trim() || '-';
+                // Vergi dilimi - Sadece metin olarak (span'ların içindeki metni al)
+                const bracketElementExcel = document.getElementById(`tax-bracket-${i}`);
+                let bracketTextExcel = '-';
+                if (bracketElementExcel) {
+                    bracketTextExcel = bracketElementExcel.textContent.replace(/\s+/g, ' ').trim() || '-';
+                }
                 row.push(bracketTextExcel);
                 
                 const taxText = document.getElementById(`tax-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
