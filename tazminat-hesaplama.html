@@ -315,7 +315,7 @@
                     
                     <div class="form-group">
                         <label>Son Brüt Aylık Ücret (₺)</label>
-                        <input type="number" id="kidem-brut" placeholder="Örn: 50000" oninput="calculateKidem()">
+                        <input type="number" id="kidem-brut" placeholder="Örn: 50000" oninput="copyBrutToAll(); calculateKidem()">
                     </div>
                     
                     <div class="form-group">
@@ -616,6 +616,21 @@
         window.addEventListener('DOMContentLoaded', () => {
             fetchExchangeRates();
         });
+        
+        // Brüt ücreti tüm hesaplamalara kopyala
+        function copyBrutToAll() {
+            const brutValue = document.getElementById('kidem-brut').value;
+            if (brutValue) {
+                document.getElementById('ihbar-brut').value = brutValue;
+                document.getElementById('izin-aylik-brut').value = brutValue;
+                document.getElementById('paket-brut').value = brutValue;
+                
+                // Diğer hesaplamaları da tetikle
+                calculateIhbar();
+                calculateIzin();
+                calculatePaket();
+            }
+        }
         
         // Kıdem tazminatı hesaplama
         function calculateKidem() {
