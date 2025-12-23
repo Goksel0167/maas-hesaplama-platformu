@@ -972,8 +972,8 @@
                 <th rowspan="2">Damga<br>Vergisi</th>
                 ${advancedOptions.netDeduct ? '<th rowspan="2">Netten Düş<br>(BES vb.)</th>' : ''}
                 ${advancedOptions.netAdditions ? '<th rowspan="2">Net<br>İlaveler</th>' : ''}
-                <th rowspan="2">Net Ücret (TL)</th>
-                ${currentCurrency !== 'TL' ? `<th rowspan="2" style="background: #fef3c7;">Net Ücret (${currentCurrency})</th>` : ''}
+                <th rowspan="2">Net Ücret</th>
+                ${currentCurrency !== 'TL' ? '<th rowspan="2" style="background: #fef3c7;">Net Ücret (TL)</th>' : ''}
             `;
             thead.appendChild(theadRow1);
             
@@ -1012,8 +1012,8 @@
                 <td id="footer-stamp"><strong>0₺</strong></td>
                 ${advancedOptions.netDeduct ? '<td id="footer-net-deduct"><strong>0₺</strong></td>' : ''}
                 ${advancedOptions.netAdditions ? '<td id="footer-net-additions"><strong>0₺</strong></td>' : ''}
-                <td id="footer-net"><strong>0₺</strong></td>
-                ${currentCurrency !== 'TL' ? '<td id="footer-net-currency"><strong>0' + currencySymbol + '</strong></td>' : ''}
+                <td id="footer-net"><strong>0${currencySymbol}</strong></td>
+                ${currentCurrency !== 'TL' ? '<td id="footer-net-tl"><strong>0₺</strong></td>' : ''}
             `;
 
             // Create rows
@@ -1078,9 +1078,9 @@
                     rowHTML += `<td><input type="number" id="net-additions-${index}" placeholder="0" oninput="calculateRow(${index})"></td>`;
                 }
                 
-                rowHTML += `<td id="net-${index}"><strong>0₺</strong></td>`;
+                rowHTML += `<td id="net-${index}"><strong>0${currencySymbol}</strong></td>`;
                 if (currentCurrency !== 'TL') {
-                    rowHTML += `<td id="net-currency-${index}" style="background: #fef9e7;"><strong>0${currencySymbol}</strong></td>`;
+                    rowHTML += `<td id="net-tl-${index}" style="background: #fef9e7;"><strong>0₺</strong></td>`;
                 }
 
                 row.innerHTML = rowHTML;
@@ -1356,13 +1356,11 @@
             document.getElementById(`stamp-${index}`).textContent = formatCurrency(stamp / rate);
             document.getElementById(`net-${index}`).innerHTML = `<strong>${formatCurrency(net / rate)}</strong>`;
             
-            // Döviz karşılığını göster (TL dışında)
+            // TL karşılığını göster (TL dışında)
             if (currentCurrency !== 'TL') {
-                const netCurrencyCell = document.getElementById(`net-currency-${index}`);
-                if (netCurrencyCell) {
-                    const netInTL = net; // Net TL cinsinden
-                    const netInCurrency = netInTL / exchangeRates[currentCurrency];
-                    netCurrencyCell.innerHTML = `<strong>${netInCurrency.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${currencySymbol}</strong>`;
+                const netTLCell = document.getElementById(`net-tl-${index}`);
+                if (netTLCell) {
+                    netTLCell.innerHTML = `<strong>${net.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}₺</strong>`;
                 }
             }
 
@@ -1520,12 +1518,11 @@
             document.getElementById(`stamp-${index}`).textContent = formatCurrency(stamp / rate);
             document.getElementById(`net-${index}`).innerHTML = `<strong>${formatCurrency(brut / rate)}</strong>`; // Show brut in net column
             
-            // Döviz karşılığını göster (TL dışında)
+            // TL karşılığını göster (TL dışında)
             if (currentCurrency !== 'TL') {
-                const netCurrencyCell = document.getElementById(`net-currency-${index}`);
-                if (netCurrencyCell) {
-                    const brutInCurrency = brut / exchangeRates[currentCurrency];
-                    netCurrencyCell.innerHTML = `<strong>${brutInCurrency.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${currencySymbol}</strong>`;
+                const netTLCell = document.getElementById(`net-tl-${index}`);
+                if (netTLCell) {
+                    netTLCell.innerHTML = `<strong>${brut.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}₺</strong>`;
                 }
             }
             
@@ -1686,12 +1683,12 @@
             
             document.getElementById('footer-net').innerHTML = `<strong>${formatCurrency(totalNet)}</strong>`;
             
-            // Döviz karşılığı toplam (TL dışında)
+            // TL toplamını göster (TL dışında)
             if (currentCurrency !== 'TL') {
-                const footerNetCurrency = document.getElementById('footer-net-currency');
-                if (footerNetCurrency) {
-                    const totalNetInCurrency = totalNet / exchangeRates[currentCurrency];
-                    footerNetCurrency.innerHTML = `<strong>${totalNetInCurrency.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${currencySymbol}</strong>`;
+                const footerNetTL = document.getElementById('footer-net-tl');
+                if (footerNetTL) {
+                    const totalNetInTL = totalNet * exchangeRates[currentCurrency];
+                    footerNetTL.innerHTML = `<strong>${totalNetInTL.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}₺</strong>`;
                 }
             }
 

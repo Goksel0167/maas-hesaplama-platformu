@@ -802,12 +802,11 @@
             const grandTotal = totals.kidem + totals.ihbar + totals.izin + totals.paket;
             document.getElementById('total-all').textContent = formatCurrency(grandTotal);
             
-            // Döviz karşılığını göster (TRY dışında)
+            // TL karşılığını göster (TRY dışında)
             const totalCurrencyDiv = document.getElementById('total-all-currency');
             if (currentCurrency !== 'TRY') {
-                const grandTotalInCurrency = grandTotal / exchangeRates[currentCurrency];
-                const currencySymbol = currentCurrency === 'USD' ? '$' : (currentCurrency === 'EUR' ? '€' : 'CHF');
-                totalCurrencyDiv.textContent = grandTotalInCurrency.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + currencySymbol;
+                const grandTotalInTRY = grandTotal; // grandTotal zaten TRY cinsinden
+                totalCurrencyDiv.textContent = grandTotalInTRY.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '₺';
                 totalCurrencyDiv.style.display = 'block';
             } else {
                 totalCurrencyDiv.style.display = 'none';
