@@ -831,8 +831,8 @@
     </div>
 
     <script>
-        // Exchange rates
-        const exchangeRates = {
+        // Exchange rates - Başlangıç değerleri
+        let exchangeRates = {
             USD: 42.70,
             EUR: 50.16,
             TL: 1
@@ -842,6 +842,59 @@
         let currencySymbol = '₺';
         let currentYear = 2025;
         let calculationDirection = localStorage.getItem('calculationDirection') || 'brut-to-net';
+        let kurGuncellendi = false;
+
+        // TCMB'den güncel kurları çek
+        async function fetchExchangeRates() {
+            try {
+                // TCMB XML URL'i - CORS proxy üzerinden
+                const tcmbUrl = 'https://www.tcmb.gov.tr/kurlar/today.xml';
+                const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                
+                const response = await fetch(proxyUrl + encodeURIComponent(tcmbUrl));
+                const xmlText = await response.text();
+                
+                // XML parse
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+                
+                // Hata kontrolü
+                if (xmlDoc.getElementsByTagName('parsererror').length > 0) {
+                    throw new Error('XML parse hatası');
+                }
+                
+                // Döviz kurlarını çek (Satış kuru - ForexSelling)
+                const currencies = xmlDoc.getElementsByTagName('Currency');
+                
+                if (currencies.length === 0) {
+                    throw new Error('Kur bilgisi bulunamadı');
+                }
+                
+                for (let currency of currencies) {
+                    const code = currency.getAttribute('CurrencyCode');
+                    const forexSelling = currency.getElementsByTagName('ForexSelling')[0];
+                    
+                    if (forexSelling && forexSelling.textContent) {
+                        const rate = parseFloat(forexSelling.textContent);
+                        
+                        if (!isNaN(rate) && rate > 0) {
+                            if (code === 'USD') {
+                                exchangeRates.USD = rate;
+                            } else if (code === 'EUR') {
+                                exchangeRates.EUR = rate;
+                            }
+                        }
+                    }
+                }
+                
+                kurGuncellendi = true;
+                console.log('✅ TCMB Kurları Güncellendi:', exchangeRates);
+                
+            } catch (error) {
+                console.error('⚠️ TCMB kurları alınamadı, varsayılan kurlar kullanılıyor:', error);
+                kurGuncellendi = false;
+            }
+        }
 
         // Months
         const months = [
@@ -2287,6 +2340,9 @@
 
         // Initialize
         initTable();
+        
+        // TCMB kurlarını çek
+        fetchExchangeRates();
         
         // Manuel düzenleme takibini başlat
         setTimeout(() => {
