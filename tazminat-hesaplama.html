@@ -992,168 +992,6 @@
             // İndir
             doc.save(`Tazminat-Hesaplama-${new Date().toLocaleDateString('tr-TR').replace(/\./g, '-')}.pdf`);
         }
-            doc.text('Tazminat Hesaplama Raporu', 14, 20);
-            doc.setFontSize(11);
-            doc.text(`Tarih: ${new Date().toLocaleDateString('tr-TR')}`, 14, 28);
-            
-            let yPosition = 40;
-            
-            // Kıdem Tazminatı
-            if (totals.kidem > 0) {
-                doc.setFontSize(14);
-                doc.setTextColor(99, 102, 241);
-                doc.text('💼 Kıdem Tazminatı', 14, yPosition);
-                yPosition += 8;
-                
-                doc.setFontSize(10);
-                doc.setTextColor(0, 0, 0);
-                
-                const kidemData = [
-                    ['İşe Giriş Tarihi', document.getElementById('kidem-giris')?.value || '-'],
-                    ['İşten Çıkış Tarihi', document.getElementById('kidem-cikis')?.value || '-'],
-                    ['Çalışma Süresi', document.getElementById('kidem-sure-text')?.value || '-'],
-                    ['Brüt Aylık Ücret', document.getElementById('kidem-brut')?.value + '₺' || '-'],
-                    ['Ayrılma Nedeni', document.getElementById('kidem-neden')?.selectedOptions[0]?.text || '-'],
-                    ['Kıdem Tazminatı', formatCurrency(totals.kidem)]
-                ];
-                
-                doc.autoTable({
-                    startY: yPosition,
-                    head: [['Alan', 'Değer']],
-                    body: kidemData,
-                    theme: 'grid',
-                    headStyles: { fillColor: [99, 102, 241] }
-                });
-                
-                yPosition = doc.lastAutoTable.finalY + 15;
-            }
-            
-            // İhbar Tazminatı
-            if (totals.ihbar > 0) {
-                doc.setFontSize(14);
-                doc.setTextColor(99, 102, 241);
-                doc.text('📢 İhbar Tazminatı', 14, yPosition);
-                yPosition += 8;
-                
-                doc.setFontSize(10);
-                doc.setTextColor(0, 0, 0);
-                
-                const ihbarData = [
-                    ['Brüt Aylık Ücret', document.getElementById('ihbar-brut')?.value + '₺' || '-'],
-                    ['İhbar Süresi', document.getElementById('ihbar-sure-text')?.textContent || '-'],
-                    ['İhbar Tazminatı', formatCurrency(totals.ihbar)]
-                ];
-                
-                doc.autoTable({
-                    startY: yPosition,
-                    head: [['Alan', 'Değer']],
-                    body: ihbarData,
-                    theme: 'grid',
-                    headStyles: { fillColor: [99, 102, 241] }
-                });
-                
-                yPosition = doc.lastAutoTable.finalY + 15;
-            }
-            
-            // Yıllık İzin
-            if (totals.izin > 0) {
-                if (yPosition > 250) {
-                    doc.addPage();
-                    yPosition = 20;
-                }
-                
-                doc.setFontSize(14);
-                doc.setTextColor(99, 102, 241);
-                doc.text('🏖️ Kullanılmayan Yıllık İzin', 14, yPosition);
-                yPosition += 8;
-                
-                doc.setFontSize(10);
-                doc.setTextColor(0, 0, 0);
-                
-                const izinData = [
-                    ['Aylık Brüt Ücret', document.getElementById('izin-aylik-brut')?.value + '₺' || '-'],
-                    ['Günlük Brüt Ücret', document.getElementById('izin-gunluk')?.value + '₺' || '-'],
-                    ['İzin Günü', document.getElementById('izin-gun')?.value + ' gün' || '-'],
-                    ['Yıllık İzin Ücreti', formatCurrency(totals.izin)]
-                ];
-                
-                doc.autoTable({
-                    startY: yPosition,
-                    head: [['Alan', 'Değer']],
-                    body: izinData,
-                    theme: 'grid',
-                    headStyles: { fillColor: [99, 102, 241] }
-                });
-                
-                yPosition = doc.lastAutoTable.finalY + 15;
-            }
-            
-            // Çıkış Paketi
-            if (totals.paket > 0) {
-                if (yPosition > 250) {
-                    doc.addPage();
-                    yPosition = 20;
-                }
-                
-                doc.setFontSize(14);
-                doc.setTextColor(245, 158, 11);
-                doc.text('🎁 Çıkış Paketi', 14, yPosition);
-                yPosition += 8;
-                
-                doc.setFontSize(10);
-                doc.setTextColor(0, 0, 0);
-                
-                const paketData = [
-                    ['Brüt Aylık Ücret', document.getElementById('paket-brut')?.value + '₺' || '-'],
-                    ['Paket Sayısı', document.getElementById('paket-sayi')?.value + ' paket' || '-'],
-                    ['Çalışan Tipi', document.getElementById('paket-tip')?.selectedOptions[0]?.text || '-'],
-                    ['Çıkış Paketi', formatCurrency(totals.paket)]
-                ];
-                
-                doc.autoTable({
-                    startY: yPosition,
-                    head: [['Alan', 'Değer']],
-                    body: paketData,
-                    theme: 'grid',
-                    headStyles: { fillColor: [245, 158, 11] }
-                });
-                
-                yPosition = doc.lastAutoTable.finalY + 15;
-            }
-            
-            // Genel Toplam
-            if (yPosition > 250) {
-                doc.addPage();
-                yPosition = 20;
-            }
-            
-            doc.setFontSize(16);
-            doc.setTextColor(22, 163, 74);
-            doc.text('GENEL TOPLAM', 14, yPosition);
-            yPosition += 10;
-            
-            const toplamData = [
-                ['Kıdem Tazminatı', formatCurrency(totals.kidem)],
-                ['İhbar Tazminatı', formatCurrency(totals.ihbar)],
-                ['Yıllık İzin Ücreti', formatCurrency(totals.izin)],
-                ['Çıkış Paketi', formatCurrency(totals.paket)],
-                ['GENEL TOPLAM', formatCurrency(totals.kidem + totals.ihbar + totals.izin + totals.paket)]
-            ];
-            
-            doc.autoTable({
-                startY: yPosition,
-                body: toplamData,
-                theme: 'grid',
-                styles: { fontSize: 11, fontStyle: 'bold' },
-                columnStyles: {
-                    0: { fillColor: [240, 253, 244] },
-                    1: { fillColor: [220, 252, 231], halign: 'right' }
-                }
-            });
-            
-            // İndir
-            doc.save(`Tazminat-Hesaplama-${new Date().toLocaleDateString('tr-TR').replace(/\./g, '-')}.pdf`);
-        }
         
         // Excel Export
         function exportToExcel() {
@@ -1231,8 +1069,7 @@
         }
     </script>
 
-    <!-- Yorum Sistemi - Geçici olarak devre dışı -->
-    <!--
+    <!-- Yorum Sistemi -->
     <div class="comparison-table" style="margin-top: 30px;">
         <h2 style="margin-bottom: 20px;">💬 Yorumlar</h2>
         <script src="https://giscus.app/client.js"
@@ -1251,7 +1088,6 @@
                 async>
         </script>
     </div>
-    -->
 
 </body>
 </html>
