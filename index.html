@@ -1427,15 +1427,12 @@
             document.getElementById(`unemployment-${index}`).textContent = formatCurrency(unemployment / rate);
             document.getElementById(`base-${index}`).textContent = formatCurrency(base / rate);
             
-            // Update tax brackets - Renkli etiketler olarak göster
-            const bracketCellNet = document.getElementById(`tax-bracket-${index}`);
-            let bracketHTMLNet = '';
-            if (taxBrackets.tax15 > 0) bracketHTMLNet += '<span style="background: #fef3c7; padding: 3px 8px; border-radius: 4px; margin: 2px; display: inline-block; font-size: 0.85em; font-weight: 600;">%15</span>';
-            if (taxBrackets.tax20 > 0) bracketHTMLNet += '<span style="background: #fed7aa; padding: 3px 8px; border-radius: 4px; margin: 2px; display: inline-block; font-size: 0.85em; font-weight: 600;">%20</span>';
-            if (taxBrackets.tax27 > 0) bracketHTMLNet += '<span style="background: #fecaca; padding: 3px 8px; border-radius: 4px; margin: 2px; display: inline-block; font-size: 0.85em; font-weight: 600;">%27</span>';
-            if (taxBrackets.tax35 > 0) bracketHTMLNet += '<span style="background: #fca5a5; padding: 3px 8px; border-radius: 4px; margin: 2px; display: inline-block; font-size: 0.85em; font-weight: 600;">%35</span>';
-            if (taxBrackets.tax40 > 0) bracketHTMLNet += '<span style="background: #f87171; padding: 3px 8px; border-radius: 4px; margin: 2px; display: inline-block; font-size: 0.85em; font-weight: 600; color: white;">%40</span>';
-            bracketCellNet.innerHTML = bracketHTMLNet || '-';
+            // Vergi dilimlerini ayrı sütunlarda göster (brütten nete aynı şekilde)
+            document.getElementById(`tax15-${index}`).textContent = formatCurrency(taxBrackets.tax15 / rate);
+            document.getElementById(`tax20-${index}`).textContent = formatCurrency(taxBrackets.tax20 / rate);
+            document.getElementById(`tax27-${index}`).textContent = formatCurrency(taxBrackets.tax27 / rate);
+            document.getElementById(`tax35-${index}`).textContent = formatCurrency(taxBrackets.tax35 / rate);
+            document.getElementById(`tax40-${index}`).textContent = formatCurrency(taxBrackets.tax40 / rate);
             
             document.getElementById(`tax-${index}`).textContent = formatCurrency(tax / rate);
             document.getElementById(`stamp-${index}`).textContent = formatCurrency(stamp / rate);
@@ -1957,13 +1954,21 @@
                     row.push(document.getElementById(`cumulative-${i}`)?.textContent.replace(currencySymbol, '') || '0');
                 }
                 
-                // Vergi dilimi - Sadece metin olarak (span'ların içindeki metni al)
-                const bracketElement = document.getElementById(`tax-bracket-${i}`);
-                let bracketText = '-';
-                if (bracketElement) {
-                    // textContent ile tüm span'ların içindeki metni birleştir
-                    bracketText = bracketElement.textContent.replace(/\s+/g, ' ').trim() || '-';
-                }
+                // Vergi dilimi - 5 ayrı sütundan hangi dilimlerin kullanıldığını belirle
+                let activeBrackets = [];
+                const tax15Val = document.getElementById(`tax15-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
+                const tax20Val = document.getElementById(`tax20-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
+                const tax27Val = document.getElementById(`tax27-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
+                const tax35Val = document.getElementById(`tax35-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
+                const tax40Val = document.getElementById(`tax40-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
+                
+                if (parseFloat(tax15Val) > 0) activeBrackets.push('%15');
+                if (parseFloat(tax20Val) > 0) activeBrackets.push('%20');
+                if (parseFloat(tax27Val) > 0) activeBrackets.push('%27');
+                if (parseFloat(tax35Val) > 0) activeBrackets.push('%35');
+                if (parseFloat(tax40Val) > 0) activeBrackets.push('%40');
+                
+                const bracketText = activeBrackets.length > 0 ? activeBrackets.join(' ') : '-';
                 row.push(bracketText);
                 
                 row.push(document.getElementById(`tax-${i}`)?.textContent.replace(currencySymbol, '') || '0');
@@ -2105,12 +2110,21 @@
                     row.push(parseFloat(cumulativeText) || 0);
                 }
                 
-                // Vergi dilimi - Sadece metin olarak (span'ların içindeki metni al)
-                const bracketElementExcel = document.getElementById(`tax-bracket-${i}`);
-                let bracketTextExcel = '-';
-                if (bracketElementExcel) {
-                    bracketTextExcel = bracketElementExcel.textContent.replace(/\s+/g, ' ').trim() || '-';
-                }
+                // Vergi dilimi - 5 ayrı sütundan hangi dilimlerin kullanıldığını belirle
+                let activeBracketsExcel = [];
+                const tax15ValExcel = document.getElementById(`tax15-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
+                const tax20ValExcel = document.getElementById(`tax20-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
+                const tax27ValExcel = document.getElementById(`tax27-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
+                const tax35ValExcel = document.getElementById(`tax35-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
+                const tax40ValExcel = document.getElementById(`tax40-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
+                
+                if (parseFloat(tax15ValExcel) > 0) activeBracketsExcel.push('%15');
+                if (parseFloat(tax20ValExcel) > 0) activeBracketsExcel.push('%20');
+                if (parseFloat(tax27ValExcel) > 0) activeBracketsExcel.push('%27');
+                if (parseFloat(tax35ValExcel) > 0) activeBracketsExcel.push('%35');
+                if (parseFloat(tax40ValExcel) > 0) activeBracketsExcel.push('%40');
+                
+                const bracketTextExcel = activeBracketsExcel.length > 0 ? activeBracketsExcel.join(' ') : '-';
                 row.push(bracketTextExcel);
                 
                 const taxText = document.getElementById(`tax-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
