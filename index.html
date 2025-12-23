@@ -841,7 +841,7 @@
         let currentCurrency = 'TL';
         let currencySymbol = '₺';
         let currentYear = 2025;
-        let calculationDirection = 'brut-to-net';
+        let calculationDirection = localStorage.getItem('calculationDirection') || 'brut-to-net';
 
         // Months
         const months = [
@@ -1732,7 +1732,8 @@
 
         // Select direction
         function selectDirection(direction) {
-            calculationDirection = direction;
+            // Seçimi localStorage'a kaydet
+            localStorage.setItem('calculationDirection', direction);
             
             // Sayfa yenileme ile tabloyu tamamen sıfırla
             location.reload();
@@ -2291,6 +2292,18 @@
         setTimeout(() => {
             initManualEditTracking();
         }, 100);
+        
+        // Hesaplama yönü dropdown'ını güncelle
+        const directionText = calculationDirection === 'brut-to-net' ? 'Brütten Nete' : 'Netten Brüte';
+        document.getElementById('calc-direction-text').textContent = directionText;
+        
+        // Ana başlığı güncelle
+        const mainTitle = document.querySelector('.main-card h2');
+        if (mainTitle) {
+            mainTitle.textContent = calculationDirection === 'brut-to-net' 
+                ? 'Brütten Nete Maaş Hesaplama 2025' 
+                : 'Netten Brüte Maaş Hesaplama 2025';
+        }
     </script>
 
     <!-- Yorum Sistemi -->
