@@ -927,12 +927,17 @@
                 <th rowspan="2">Brüt Ücret</th>
                 ${advancedOptions.bonus ? '<th rowspan="2">İkramiye/Prim/<br>Yol Yemek Toplamı</th>' : ''}
                 <th colspan="2" style="background: #e0f2fe; color: #0369a1;">SGK + İşsizlik</th>
+                ${advancedOptions.sgkDeduct ? '<th rowspan="2">SGK Matrahından<br>Düş</th>' : ''}
                 <th rowspan="2">Vergi<br>Matrahı</th>
                 ${advancedOptions.cumulative ? '<th rowspan="2">Kümülatif<br>Matrah</th>' : ''}
                 <th colspan="5" style="background: #fee2e2; color: #991b1b;">Gelir Vergisi Dilimleri</th>
                 ${advancedOptions.agi ? '<th rowspan="2">AGİ</th>' : ''}
+                ${advancedOptions.taxDeduct ? '<th rowspan="2">Gelir V. Matrahından<br>Düş</th>' : ''}
                 <th rowspan="2">Toplam<br>Gelir Vergisi</th>
+                ${advancedOptions.stampDeduct ? '<th rowspan="2">Damga V. Matrahından<br>Düş</th>' : ''}
                 <th rowspan="2">Damga<br>Vergisi</th>
+                ${advancedOptions.netDeduct ? '<th rowspan="2">Netten Düş<br>(BES vb.)</th>' : ''}
+                ${advancedOptions.netAdditions ? '<th rowspan="2">Net<br>İlaveler</th>' : ''}
                 <th rowspan="2">Net Ücret</th>
             `;
             thead.appendChild(theadRow1);
@@ -957,6 +962,7 @@
                 ${advancedOptions.bonus ? '<td id="footer-bonus"><strong>0₺</strong></td>' : ''}
                 <td id="footer-sgk"><strong>0₺</strong></td>
                 <td id="footer-unemployment"><strong>0₺</strong></td>
+                ${advancedOptions.sgkDeduct ? '<td id="footer-sgk-deduct"><strong>0₺</strong></td>' : ''}
                 <td id="footer-base"><strong>0₺</strong></td>
                 ${advancedOptions.cumulative ? '<td id="footer-cumulative"><strong>0₺</strong></td>' : ''}
                 <td id="footer-tax15"><strong>0₺</strong></td>
@@ -965,8 +971,12 @@
                 <td id="footer-tax35"><strong>0₺</strong></td>
                 <td id="footer-tax40"><strong>0₺</strong></td>
                 ${advancedOptions.agi ? '<td id="footer-agi"><strong>0₺</strong></td>' : ''}
+                ${advancedOptions.taxDeduct ? '<td id="footer-tax-deduct"><strong>0₺</strong></td>' : ''}
                 <td id="footer-tax"><strong>0₺</strong></td>
+                ${advancedOptions.stampDeduct ? '<td id="footer-stamp-deduct"><strong>0₺</strong></td>' : ''}
                 <td id="footer-stamp"><strong>0₺</strong></td>
+                ${advancedOptions.netDeduct ? '<td id="footer-net-deduct"><strong>0₺</strong></td>' : ''}
+                ${advancedOptions.netAdditions ? '<td id="footer-net-additions"><strong>0₺</strong></td>' : ''}
                 <td id="footer-net"><strong>0₺</strong></td>
             `;
 
@@ -990,6 +1000,11 @@
 
                 rowHTML += `<td id="sgk-${index}">0${currencySymbol}</td>`;
                 rowHTML += `<td id="unemployment-${index}">0${currencySymbol}</td>`;
+                
+                if (advancedOptions.sgkDeduct) {
+                    rowHTML += `<td><input type="number" id="sgk-deduct-${index}" placeholder="0" oninput="calculateRow(${index})"></td>`;
+                }
+                
                 rowHTML += `<td id="base-${index}">0${currencySymbol}</td>`;
 
                 if (advancedOptions.cumulative) {
@@ -1007,8 +1022,26 @@
                     rowHTML += `<td id="agi-${index}">0${currencySymbol}</td>`;
                 }
                 
+                if (advancedOptions.taxDeduct) {
+                    rowHTML += `<td><input type="number" id="tax-deduct-${index}" placeholder="0" oninput="calculateRow(${index})"></td>`;
+                }
+                
                 rowHTML += `<td id="tax-${index}">0${currencySymbol}</td>`;
+                
+                if (advancedOptions.stampDeduct) {
+                    rowHTML += `<td><input type="number" id="stamp-deduct-${index}" placeholder="0" oninput="calculateRow(${index})"></td>`;
+                }
+                
                 rowHTML += `<td id="stamp-${index}">0${currencySymbol}</td>`;
+                
+                if (advancedOptions.netDeduct) {
+                    rowHTML += `<td><input type="number" id="net-deduct-${index}" placeholder="0" oninput="calculateRow(${index})"></td>`;
+                }
+                
+                if (advancedOptions.netAdditions) {
+                    rowHTML += `<td><input type="number" id="net-additions-${index}" placeholder="0" oninput="calculateRow(${index})"></td>`;
+                }
+                
                 rowHTML += `<td id="net-${index}"><strong>0${currencySymbol}</strong></td>`;
 
                 row.innerHTML = rowHTML;
@@ -1454,10 +1487,12 @@
 
         // Update totals with all columns
         function updateTotals() {
-            let totalBrut = 0, totalBonus = 0, totalSgk = 0;
+            let totalBrut = 0, totalBonus = 0, totalSgk = 0, totalSgkDeduct = 0;
             let totalUnemployment = 0, totalBase = 0, totalCumulative = 0;
             let totalTax15 = 0, totalTax20 = 0, totalTax27 = 0, totalTax35 = 0, totalTax40 = 0;
-            let totalAgi = 0, totalTax = 0, totalStamp = 0, totalNet = 0;
+            let totalAgi = 0, totalTaxDeduct = 0, totalTax = 0;
+            let totalStampDeduct = 0, totalStamp = 0;
+            let totalNetDeduct = 0, totalNetAdditions = 0, totalNet = 0;
 
             for (let i = 0; i < 12; i++) {
                 const brutInput = document.getElementById(`brut-${i}`)?.value;
@@ -1474,6 +1509,11 @@
 
                     const unemploymentText = document.getElementById(`unemployment-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
                     totalUnemployment += parseFloat(unemploymentText) || 0;
+
+                    if (advancedOptions.sgkDeduct) {
+                        const sgkDeductVal = document.getElementById(`sgk-deduct-${i}`)?.value;
+                        if (sgkDeductVal) totalSgkDeduct += parseFloat(sgkDeductVal);
+                    }
 
                     const baseText = document.getElementById(`base-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
                     totalBase += parseFloat(baseText) || 0;
@@ -1504,11 +1544,31 @@
                         totalAgi += parseFloat(agiText) || 0;
                     }
 
+                    if (advancedOptions.taxDeduct) {
+                        const taxDeductVal = document.getElementById(`tax-deduct-${i}`)?.value;
+                        if (taxDeductVal) totalTaxDeduct += parseFloat(taxDeductVal);
+                    }
+
                     const taxText = document.getElementById(`tax-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
                     totalTax += parseFloat(taxText) || 0;
 
+                    if (advancedOptions.stampDeduct) {
+                        const stampDeductVal = document.getElementById(`stamp-deduct-${i}`)?.value;
+                        if (stampDeductVal) totalStampDeduct += parseFloat(stampDeductVal);
+                    }
+
                     const stampText = document.getElementById(`stamp-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
                     totalStamp += parseFloat(stampText) || 0;
+
+                    if (advancedOptions.netDeduct) {
+                        const netDeductVal = document.getElementById(`net-deduct-${i}`)?.value;
+                        if (netDeductVal) totalNetDeduct += parseFloat(netDeductVal);
+                    }
+
+                    if (advancedOptions.netAdditions) {
+                        const netAddVal = document.getElementById(`net-additions-${i}`)?.value;
+                        if (netAddVal) totalNetAdditions += parseFloat(netAddVal);
+                    }
 
                     const netText = document.getElementById(`net-${i}`)?.textContent.replace(currencySymbol, '').replace(/\./g, '').replace(',', '.');
                     totalNet += parseFloat(netText) || 0;
@@ -1524,6 +1584,11 @@
             
             document.getElementById('footer-sgk').innerHTML = `<strong>${formatCurrency(totalSgk)}</strong>`;
             document.getElementById('footer-unemployment').innerHTML = `<strong>${formatCurrency(totalUnemployment)}</strong>`;
+            
+            if (advancedOptions.sgkDeduct) {
+                document.getElementById('footer-sgk-deduct').innerHTML = `<strong>${formatCurrency(totalSgkDeduct)}</strong>`;
+            }
+            
             document.getElementById('footer-base').innerHTML = `<strong>${formatCurrency(totalBase)}</strong>`;
 
             if (advancedOptions.cumulative) {
@@ -1541,8 +1606,26 @@
                 document.getElementById('footer-agi').innerHTML = `<strong>${formatCurrency(totalAgi)}</strong>`;
             }
 
+            if (advancedOptions.taxDeduct) {
+                document.getElementById('footer-tax-deduct').innerHTML = `<strong>${formatCurrency(totalTaxDeduct)}</strong>`;
+            }
+
             document.getElementById('footer-tax').innerHTML = `<strong>${formatCurrency(totalTax)}</strong>`;
+            
+            if (advancedOptions.stampDeduct) {
+                document.getElementById('footer-stamp-deduct').innerHTML = `<strong>${formatCurrency(totalStampDeduct)}</strong>`;
+            }
+            
             document.getElementById('footer-stamp').innerHTML = `<strong>${formatCurrency(totalStamp)}</strong>`;
+            
+            if (advancedOptions.netDeduct) {
+                document.getElementById('footer-net-deduct').innerHTML = `<strong>${formatCurrency(totalNetDeduct)}</strong>`;
+            }
+
+            if (advancedOptions.netAdditions) {
+                document.getElementById('footer-net-additions').innerHTML = `<strong>${formatCurrency(totalNetAdditions)}</strong>`;
+            }
+            
             document.getElementById('footer-net').innerHTML = `<strong>${formatCurrency(totalNet)}</strong>`;
 
             // Update summary cards
