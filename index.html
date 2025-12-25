@@ -2339,27 +2339,7 @@
         
         // Ana başlığı güncelle
         updateMainTitle();
-    }
-    
-    // Ana başlığı hesaplama yönü ve yıla göre güncelle
-    function updateMainTitle() {
-        const mainTitle = document.getElementById('main-title');
-        if (mainTitle) {
-            const directionText = calculationDirection === 'brut-to-net' ? 'Brütten Nete' : 'Netten Brüte';
-            mainTitle.textContent = `${directionText} Maaş Hesaplama ${currentYear}`;
-        }
-    }
-</script>
 
-    <!-- Yorum Sistemi -->
-    <div class="comparison-table" style="margin-top: 30px;">
-        <h2 style="margin-bottom: 20px;">💬 Yorumlar</h2>
-        <script src="https://giscus.app/client.js"
-                data-repo="Goksel0167/maas-hesaplama-platformu"
-                data-repo-id="R_kgDOQta-lA"
-                data-category="General"
-                data-category-id="DIC_kwDOQta-lM4C0KJO"
-                data-mapping="pathname"
                 data-strict="0"
                 data-reactions-enabled="1"
                 data-emit-metadata="0"
