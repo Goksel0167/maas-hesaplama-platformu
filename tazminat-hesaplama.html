@@ -701,8 +701,10 @@
             // Yıllık kıdem tazminatı (30 günlük brüt ücret)
             const yillikKidem = gunlukBrut * 30;
             
-            // 2026 kıdem tavan tutarı (Tahmini - Resmi açıklama bekleniyor)
-            const kidemTavani = 50631.00; // 39866.78 * 1.27
+            // 2026 kıdem tavan tutarı (Tahmini - Memur maaş artışı %18,7 baz alınarak)
+            // 2025 Temmuz-Aralık tavanı: 53.919,68 TL
+            // Tahmini 2026 tavanı: 53.919,68 * 1.187 ≈ 64.000 TL
+            const kidemTavani = 64000.00;
             const tavanliYillikKidem = Math.min(yillikKidem, kidemTavani);
             
             // Toplam kıdem tazminatı hesaplama
