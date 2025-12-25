@@ -681,7 +681,7 @@
 
         <!-- Main Content -->
         <div class="main-card">
-            <h2 style="color: var(--dark); margin-bottom: 20px;">Brütten Nete Maaş Hesaplama 2025</h2>
+            <h2 id="main-title" style="color: var(--dark); margin-bottom: 20px;">Brütten Nete Maaş Hesaplama 2026</h2>
 
             <!-- Summary Cards -->
             <div class="summary-cards">
@@ -1720,6 +1720,9 @@
             
             toggleDropdown('year-select');
             
+            // Ana başlığı güncelle
+            updateMainTitle();
+            
             // Tüm hesaplamaları yeniden yap
             initTable();
             
@@ -2319,6 +2322,9 @@
         // Initialize
         initTable();
         
+        // Ana başlığı güncelle
+        updateMainTitle();
+        
         // TCMB kurlarını çek
         fetchExchangeRates();
         
@@ -2332,11 +2338,15 @@
         document.getElementById('calc-direction-text').textContent = directionText;
         
         // Ana başlığı güncelle
-        const mainTitle = document.querySelector('.main-card h2');
+        updateMainTitle();
+    }
+    
+    // Ana başlığı hesaplama yönü ve yıla göre güncelle
+    function updateMainTitle() {
+        const mainTitle = document.getElementById('main-title');
         if (mainTitle) {
-            mainTitle.textContent = calculationDirection === 'brut-to-net' 
-                ? 'Brütten Nete Maaş Hesaplama 2025' 
-                : 'Netten Brüte Maaş Hesaplama 2025';
+            const directionText = calculationDirection === 'brut-to-net' ? 'Brütten Nete' : 'Netten Brüte';
+            mainTitle.textContent = `${directionText} Maaş Hesaplama ${currentYear}`;
         }
     </script>
 
