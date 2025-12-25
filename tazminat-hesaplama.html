@@ -547,6 +547,21 @@
                         <div class="amount" id="total-all" style="font-size: 2em; color: #16a34a;">0₺</div>
                         <div class="amount" id="total-all-currency" style="font-size: 1.5em; color: #16a34a; margin-top: 10px; display: none;">0$</div>
                     </div>
+                    
+                    <!-- Kıdem Tazminatı Tavan Bilgileri -->
+                    <div class="info-box" style="margin-top: 30px; background: linear-gradient(135deg, #fef3c7, #fde68a); border-left: 4px solid #f59e0b;">
+                        <strong style="color: #92400e;">📋 Kıdem Tazminatı Tavan Tutarları (2025-2026)</strong><br><br>
+                        
+                        <strong style="color: #92400e;">2025 Yılı:</strong><br>
+                        • <strong>01.01.2025 - 30.06.2025:</strong> 46.655,43 TL<br>
+                        • <strong>01.07.2025 - 31.12.2025:</strong> 53.919,68 TL<br><br>
+                        
+                        <strong style="color: #92400e;">2026 Yılı (Tahmini):</strong><br>
+                        • <strong>2026 Ocak:</strong> 64.000 TL<br>
+                        <em style="font-size: 0.9em; color: #78350f;">* Memur maaş artışı %18,7 baz alınarak hesaplanmıştır (53.919,68 × 1.187 ≈ 64.000 TL)</em><br><br>
+                        
+                        <strong style="color: #92400e;">ℹ️ Not:</strong> Sistem, işten ayrılma tarihinize göre otomatik olarak doğru tavan tutarını uygular. Hesaplama sonucunda hangi tavanın kullanıldığı gösterilir.
+                    </div>
                 </div>
             </div>
         </div>
@@ -701,10 +716,35 @@
             // Yıllık kıdem tazminatı (30 günlük brüt ücret)
             const yillikKidem = gunlukBrut * 30;
             
-            // 2026 kıdem tavan tutarı (Tahmini - Memur maaş artışı %18,7 baz alınarak)
-            // 2025 Temmuz-Aralık tavanı: 53.919,68 TL
-            // Tahmini 2026 tavanı: 53.919,68 * 1.187 ≈ 64.000 TL
-            const kidemTavani = 64000.00;
+            // Çıkış tarihine göre kıdem tazminatı tavanını belirle
+            let kidemTavani;
+            let tavanAciklama;
+            
+            const cikisYil = cikis.getFullYear();
+            const cikisAy = cikis.getMonth() + 1; // 1-12 arası
+            
+            if (cikisYil < 2025) {
+                // 2025 öncesi için tavan yok (veya eski değerler kullanılabilir)
+                kidemTavani = yillikKidem; // Tavan uygulanmaz
+                tavanAciklama = 'Tavan yok';
+            } else if (cikisYil === 2025 && cikisAy <= 6) {
+                // 01.01.2025 - 30.06.2025: 46.655,43 TL
+                kidemTavani = 46655.43;
+                tavanAciklama = '2025 Ocak-Haziran: 46.655,43 TL';
+            } else if (cikisYil === 2025 && cikisAy >= 7) {
+                // 01.07.2025 - 31.12.2025: 53.919,68 TL
+                kidemTavani = 53919.68;
+                tavanAciklama = '2025 Temmuz-Aralık: 53.919,68 TL';
+            } else if (cikisYil === 2026) {
+                // 2026: 64.000 TL (Tahmini - Memur maaş artışı %18,7 baz alınarak)
+                kidemTavani = 64000.00;
+                tavanAciklama = '2026 (Tahmini): 64.000 TL';
+            } else {
+                // 2027 ve sonrası için 2026 tavanını kullan (gelecekte güncellenecek)
+                kidemTavani = 64000.00;
+                tavanAciklama = `${cikisYil} (Güncellenecek): 64.000 TL`;
+            }
+            
             const tavanliYillikKidem = Math.min(yillikKidem, kidemTavani);
             
             // Toplam kıdem tazminatı hesaplama
@@ -724,7 +764,16 @@
             document.getElementById('kidem-amount').textContent = formatCurrency(toplamKidem);
             document.getElementById('kidem-sure-detail').textContent = `${yil} yıl ${ay} ay ${gun} gün (${calismaYili.toFixed(2)} yıl)`;
             document.getElementById('kidem-gunluk').textContent = formatCurrency(gunlukBrut);
-            document.getElementById('kidem-hesaplanan').textContent = formatCurrency(yillikKidem * calismaYili) + (yillikKidem > kidemTavani ? ' (Tavan uygulandı)' : '');
+            
+            // Tavan bilgisi ile gösterim
+            const tavanUygulandiMi = yillikKidem > kidemTavani;
+            let hesaplananText = formatCurrency(yillikKidem * calismaYili);
+            if (tavanUygulandiMi) {
+                hesaplananText += ` → ${formatCurrency(toplamKidem)} (✓ Tavan uygulandı: ${tavanAciklama})`;
+            } else {
+                hesaplananText += ` (ℹ️ Uygulanan tavan: ${tavanAciklama})`;
+            }
+            document.getElementById('kidem-hesaplanan').textContent = hesaplananText;
             
             updateTotal('kidem', toplamKidem);
         }
