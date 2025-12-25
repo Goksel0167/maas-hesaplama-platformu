@@ -834,7 +834,7 @@
 
         let currentCurrency = 'TL';
         let currencySymbol = '₺';
-        let currentYear = 2025;
+        let currentYear = 2026;
         let calculationDirection = localStorage.getItem('calculationDirection') || 'brut-to-net';
         let kurGuncellendi = false;
 
@@ -1008,7 +1008,7 @@
             // Create rows
             months.forEach((month, index) => {
                 const row = document.createElement('tr');
-                const inputPlaceholder = calculationDirection === 'brut-to-net' ? '26005.50' : '18591.59';
+                const inputPlaceholder = calculationDirection === 'brut-to-net' ? '33030.00' : '28075.50';
                 const inputLabel = calculationDirection === 'brut-to-net' ? 'Brüt Ücret' : 'Net Ücret';
                 
                 // Ocak ayı için özel oninput handler

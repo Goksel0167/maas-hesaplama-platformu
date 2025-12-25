@@ -134,16 +134,17 @@ const TAX_DATA = {
             perChild: 0.075
         }
     },
-    // Gelecek yıllar için tahminler - Manuel Zam Oranları ile Güncellenebilir
+    // 2026 Resmi Rakamlar (ÇSGB - 23 Aralık 2025)
     2026: {
-        minWage: 26005.50, // Manuel güncelleme gerekli
-        estimatedIncrease: 25, // Tahmini zam oranı %25 (Manuel değiştirilebilir)
+        minWage: 33030.00, // Brüt Asgari Ücret
+        netMinWage: 28075.50, // Net Asgari Ücret
+        estimatedIncrease: 27, // %27 artış
         taxBrackets: [
-            { min: 0, max: 198000, rate: 0.15 },      // 158000 * 1.25
-            { min: 198000, max: 412500, rate: 0.20 }, // 330000 * 1.25
-            { min: 412500, max: 1500000, rate: 0.27 }, // 1200000 * 1.25
-            { min: 1500000, max: 5375000, rate: 0.35 }, // 4300000 * 1.25
-            { min: 5375000, max: Infinity, rate: 0.40 }
+            { min: 0, max: 200000, rate: 0.15 },      // 158000 * 1.27 ≈ 200000 (yuvarlanmış)
+            { min: 200000, max: 420000, rate: 0.20 }, // 330000 * 1.27 ≈ 420000
+            { min: 420000, max: 1520000, rate: 0.27 }, // 1200000 * 1.27 ≈ 1520000
+            { min: 1520000, max: 5460000, rate: 0.35 }, // 4300000 * 1.27 ≈ 5460000
+            { min: 5460000, max: Infinity, rate: 0.40 }
         ],
         agi: {
             single: 0.50,
